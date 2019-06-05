@@ -45,35 +45,48 @@ function addMergeData(doc){
             }
             else{
                 if(el.findText){
-                    // @ts-ignore
-                    if(el.findText(makeNextPlaceholder())){
-                        if(mergeData.hasNext()){
-                            data = mergeData.next();
-                        }
-                        else{
-                            data = emptyField;
-                        }
-                        // @ts-ignore
-                        el.replaceText(makeNextPlaceholder(),"");
-                    }
+                    const searchPattern = "\{\{.[^\}]*\}\}";
+                    while(el.findText(searchPattern)){
+                        const range = el.findText(searchPattern);
 
-                    // @ts-ignore
-                    if(el.findText(makeNextHidenPlaceholder())){
-                        if(mergeData.hasNext()){
-                            data = mergeData.next();
+                        const start = range.getStartOffset();
+                        const end = range.getEndOffsetInclusive();
+                        const placeholder = range.getElement().getText().substring(start, end + 1);
+
+                            // @ts-ignore
+                            if(placeholder == makeNextPlaceholder()) {
+                                if (mergeData.hasNext()) {
+                                    data = mergeData.next();
+                                } else {
+                                    data = emptyField;
+                                }
+                                replaceTextInEl(range.getElement(), start, end, "");
+                            }
+                            // @ts-ignore
+                           else if(placeholder == makeNextHiddenPlaceholder()) {
+                                if (mergeData.hasNext()) {
+                                    data = mergeData.next();
+                                } else {
+                                    data = emptyField;
+                                }
+                                Logger.log(range.getElement().getText());
+                                //remove or text stays hidden in document??
+                                replaceTextInEl(range.getElement(), start, end, "");
+                                range.getElement().getParent().removeChild(range.getElement());
+                            }
+                            // @ts-ignore
+                           else if(fields.indexOf(removePlaceholderTags(placeholder))>-1){
+                                // @ts-ignore
+                                replaceTextInEl(range.getElement(), start, end, data[removePlaceholderTags(placeholder)]);
+                            }
+                           else{
+                                // @ts-ignore
+                                replaceTextInEl(range.getElement(), start, end, "UNKNOWN PLACEHOLDER: "+removePlaceholderTags(placeholder));
+                            }
+
                         }
-                        else{
-                            data = emptyField;
-                        }
-                        el.getParent().removeChild(el);
-                    }
-                }
-                if(el.replaceText){
-                    for(var i=0; i<fields.length; i++){
-                        var field = fields[i];
-                        // @ts-ignore
-                        el.replaceText(makePlaceholder(field),data[field]);
-                    }
+
+
                 }
             }
         }
@@ -82,10 +95,15 @@ function addMergeData(doc){
 
 }
 
+function replaceTextInEl(el, start, end, replace){
+    el.deleteText(start,end);
+    el.insertText(start, replace);
+}
+
 
 function addTemplate(body, template){
     // @ts-ignore
-    body.appendParagraph(makeNextHidenPlaceholder());
+    body.appendParagraph(makeNextHiddenPlaceholder());
     body.appendPageBreak();
     for(var j =0; j<template.getNumChildren(); j++){
         var element = template.getChild(j).copy();

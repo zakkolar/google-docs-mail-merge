@@ -55,12 +55,16 @@ function makeNextPlaceholder(){
   return makePlaceholder(PLACEHOLDER.NEXT);
 }
 
-function makeNextHidenPlaceholder(){
+function makeNextHiddenPlaceholder(){
   return makePlaceholder(PLACEHOLDER.NEXT_HIDDEN);
 }
 
 function makePlaceholder(text){
   return PLACEHOLDER.PREFIX+text+PLACEHOLDER.SUFFIX;
+}
+
+function removePlaceholderTags(text){
+  return text.replace(PLACEHOLDER.PREFIX,"").replace(PLACEHOLDER.SUFFIX,"");
 }
 
 
