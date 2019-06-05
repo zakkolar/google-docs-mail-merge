@@ -1,5 +1,6 @@
 $(function(){
     loadSettings();
+    showDefaultPlaceholders();
 });
 
 function loadSettings(){
@@ -11,7 +12,6 @@ function loadSettings(){
 
 
 function showSettings(settings) {
-    console.log(settings);
     $('#main').show();
     $('#loader').hide();
     $('#spreadsheet_name').val(settings.spreadsheet.name);
@@ -33,6 +33,23 @@ function showSettings(settings) {
         })
         $('#values').append(button);
     }
+
+}
+
+function showDefaultPlaceholders(){
+
+    var placeholders = <?!= getDefaultPlaceholders() ?>;
+
+    for(var i=0; i<placeholders.length; i++){
+        var placeholder = placeholders[i];
+        var button = $("<button>"+placeholder+"</button>");
+        button.click(function(e){
+            e.preventDefault();
+            addField($(this).html());
+        })
+        $('#defaultPlaceholders').append(button);
+    }
+
 }
 
 function addField(field){

@@ -51,6 +51,16 @@ var PLACEHOLDER =  {
   NEXT_HIDDEN: "NEXT_RECORD_REMOVE_ELEMENT"
 };
 
+
+function getDefaultPlaceholders(){
+  var defaultPlaceholders = [
+    PLACEHOLDER.NEXT
+  ];
+
+  return JSON.stringify(defaultPlaceholders);
+}
+
+
 function makeNextPlaceholder(){
   return makePlaceholder(PLACEHOLDER.NEXT);
 }
@@ -205,6 +215,6 @@ function promptForSheet(){
  * @returns Content from the HTML file
  */
 function include(filename) {
-  return HtmlService.createTemplateFromFile(filename)
-      .getRawContent();
+  return HtmlService.createTemplateFromFile(filename).evaluate()
+      .getContent();
 }
