@@ -69,7 +69,6 @@ function addMergeData(doc){
                                 } else {
                                     data = emptyField;
                                 }
-                                Logger.log(range.getElement().getText());
                                 //remove or text stays hidden in document??
                                 replaceTextInEl(range.getElement(), start, end, "");
                                 range.getElement().getParent().removeChild(range.getElement());
