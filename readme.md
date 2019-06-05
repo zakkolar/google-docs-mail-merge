@@ -1,3 +1,6 @@
-## Password Generator for Google Sheets
+## Google Docs Mail Merge
 
-This is a super simple script to quickly generate kid-friendly passwords in Google Sheets inpsired by [DinoPass](https://dinopass.com/) by [Codemoji](https://www.codemoji.com/). For more information, see https://zak.io/addon/sheets-password-generator/.
+
+**Work in progress!!!**
+
+Add-on to create mail merges in Google Docs using data in Google Sheets
