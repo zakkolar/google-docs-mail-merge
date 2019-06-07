@@ -46,29 +46,34 @@
         </svg>
     </div>
     <form id="main">
-        <div class="block form-group">
-            <label for="spreadsheet_name"><b>Name of Spreadsheet</b></label>
-            <input readonly type="text" id="spreadsheet_name">
-        </div>
-        <div class="block form-group">
-            <label for="sheet"><b>Which tab contains the data you wish to merge?</b></label>
-            <select id="sheet">
+        <button class="pickSpreadsheet" id="noSpreadsheetChosen">Choose a spreadsheet to merge</button>
+        <div id="spreadsheetSettings">
+            <div class="block form-group">
+                <b>Name of Spreadsheet</b>
+                <p><a id="spreadsheet_name"></a></p>
+                <button class="pickSpreadsheet">Choose a different spreadsheet</button>
+            </div>
+            <div class="block form-group">
+                <label for="sheet"><b>Which tab contains the data you wish to merge?</b></label>
+                <select id="sheet">
 
-            </select>
-        </div>
-        <div class="block form-group">
-            <label for="range"><b>What is the range of data in your sheet?</b></label>
-            <input type="text" id="range">
-        </div>
-        <div class="block form-group">
-            <b>Click on a field to put it into your template</b>
-            <div id="values"></div>
+                </select> <button id="save" class="blue">Save</button>
+            </div>
+            <hr>
+            <div id="fields">
+                <div class="block form-group">
+                    <b>Click on a field to put it into your template</b>
+                    <div id="values"></div>
 
+                </div>
+                <div class="block form-group">
+                    <div id="defaultPlaceholders"></div>
+                </div>
+            </div>
+            <div id="noFields">
+                <p>This sheet seems to be empty. Add data or pick a different sheet to start merging. <a href="#" id="refresh">(refresh)</a></p>
+            </div>
         </div>
-        <div class="block form-group">
-            <div id="defaultPlaceholders"></div>
-        </div>
-
     </form>
 </div>
 

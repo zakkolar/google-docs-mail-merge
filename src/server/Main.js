@@ -16,6 +16,14 @@ function showSidebar() {
 
 }
 
+function showSpreadsheetPicker(){
+  var html = HtmlService.createTemplateFromFile('ui/PickSpreadsheet').evaluate()
+        .setWidth(700)
+        .setHeight(425)
+        .setSandboxMode(HtmlService.SandboxMode.IFRAME);
+    DocumentApp.getUi().showModalDialog(html, 'Pick spreadsheet');
+}
+
 function merge(){
 
   var templateDoc = DocumentApp.getActiveDocument();
@@ -28,15 +36,11 @@ function merge(){
 
   var link = mergedDoc.getUrl();
 
-
-
-
-
 }
 
 function getProperty(prop){
   var scriptProperties = PropertiesService.getScriptProperties();
-  return scriptProperties.getProperty(prop);
+  return scriptProperties.getProperty(prop) || null;
 }
 
 function setProperty(prop, val){
@@ -122,8 +126,12 @@ function addField(field){
 
 
 function getSpreadsheetId(){
-  // return getProperty('SPREADSHEET_ID');
-  return "1obr0qFmWUWJ15r7_kG4ggNOgtterytw2qYM2ttQ1iDA";
+  return getProperty('SPREADSHEET_ID');
+  // return "1obr0qFmWUWJ15r7_kG4ggNOgtterytw2qYM2ttQ1iDA";
+}
+
+function setSpreadsheetId(id){
+  setProperty("SPREADSHEET_ID",id);
 }
 
 function getSpreadsheet(){
@@ -132,16 +140,33 @@ function getSpreadsheet(){
 }
 
 function getSheetName(){
-  return "Sheet1";
+  return getProperty("SHEET_NAME");
+}
+
+function setSheetName(name){
+  return setProperty("SHEET_NAME", name);
 }
 
 function getSheet(){
-  return getSpreadsheet().getSheetByName(getSheetName());
+  var spreadsheet = getSpreadsheet();
+  if(spreadsheet){
+    var sheet = spreadsheet.getSheetByName(getSheetName());
+    if(sheet){
+      return sheet;
+    }
+    else{
+      return spreadsheet.getSheets()[0];
+    }
+  }
+
+  return null;
 }
 
 function getDefaultRange(){
   var sheet = getSheet();
-  var range = sheet.getRange(1,1,sheet.getLastRow(),sheet.getLastColumn());
+  var lastRow = Math.max(1,sheet.getLastRow());
+  var lastCol = Math.max(1, sheet.getLastColumn());
+  var range = sheet.getRange(1,1,lastRow,lastCol);
   return range.getA1Notation();
 }
 
@@ -159,6 +184,15 @@ function getColumnNames(){
   var range = getRange();
   var values = range.getValues();
   return values[0];
+}
+
+function getSpreadsheetUrl(){
+  var spreadsheet = getSpreadsheet();
+  if(spreadsheet){
+    return spreadsheet.getUrl();
+  }
+
+  return null;
 }
 
 function getSheets(){
@@ -190,14 +224,18 @@ function getMergeValues(){
 }
 
 function getSettings(){
-  return {
-    spreadsheet: {
+  var spreadsheet = null;
+  if(getSpreadsheetId()!=null){
+    spreadsheet = {
       name: getSpreadsheet().getName(),
       sheets: getSheets(),
       sheet: getSheetName(),
-      range: getRangeA1Notation(),
+      url: getSpreadsheetUrl(),
       columnNames: getColumnNames()
     }
+  }
+  return {
+    spreadsheet: spreadsheet
   };
 }
 
@@ -217,4 +255,13 @@ function promptForSheet(){
 function include(filename) {
   return HtmlService.createTemplateFromFile(filename).evaluate()
       .getContent();
+}
+
+
+/**
+ * Get an OAuthToken for the UI to use for the Picker
+ * @returns {any}
+ */
+function getOAuthToken() {
+  return ScriptApp.getOAuthToken();
 }

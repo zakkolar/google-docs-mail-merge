@@ -1,6 +1,12 @@
 $(function(){
     loadSettings();
     showDefaultPlaceholders();
+
+    $('.pickSpreadsheet').click(function(e){
+        e.preventDefault();
+        google.script.run.showSpreadsheetPicker();
+    })
+
 });
 
 function loadSettings(){
@@ -8,31 +14,66 @@ function loadSettings(){
     $('#main').hide();
     google.script.run.withSuccessHandler(showSettings)
         .withFailureHandler(showError).getSettings();
+    $('#refresh').click(function(e){
+        e.preventDefault();
+        loadSettings();
+    })
 }
 
 
 function showSettings(settings) {
     $('#main').show();
     $('#loader').hide();
-    $('#spreadsheet_name').val(settings.spreadsheet.name);
-    $('#sheet').html('');
-    for(var i=0; i<settings.spreadsheet.sheets.length; i++){
-        var tab = settings.spreadsheet.sheets[i];
-        $('#sheet').append("<option value='"+tab+"'>"+tab+"</option>");
-    }
-    $('#sheet').val(settings.spreadsheet.sheet);
-    $('#range').val(settings.spreadsheet.range);
 
-    $('#values').html('');
-    for(var i=0; i<settings.spreadsheet.columnNames.length; i++){
-        var column = settings.spreadsheet.columnNames[i];
-        var button = $("<button>"+column+"</button>");
-        button.click(function(e){
+    if(settings.spreadsheet){
+        $('#spreadsheetSettings').show();
+        $('#noSpreadsheetChosen').hide();
+        $('#spreadsheet_name').html(settings.spreadsheet.name);
+        $('#spreadsheet_name').attr('href',settings.spreadsheet.url);
+        $('#sheet').html('');
+        for(var i=0; i<settings.spreadsheet.sheets.length; i++){
+            var tab = settings.spreadsheet.sheets[i];
+            $('#sheet').append("<option value='"+tab+"'>"+tab+"</option>");
+        }
+        $('#sheet').val(settings.spreadsheet.sheet);
+
+        $('#save').click(function(e){
             e.preventDefault();
-            addField($(this).html());
-        })
-        $('#values').append(button);
+            var val = $('#sheet').val();
+           google.script.run.withSuccessHandler(function(){
+               loadSettings();
+           }).setSheetName(val);
+        });
+
+        if(settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]==""){
+            $('#noFields').show();
+            $('#fields').hide();
+        }
+
+        else{
+            $('#noFields').hide();
+            $('#fields').show();
+            $('#values').html('');
+            for(var i=0; i<settings.spreadsheet.columnNames.length; i++){
+                var column = settings.spreadsheet.columnNames[i];
+                var button = $("<button>"+column+"</button>");
+                button.click(function(e){
+                    e.preventDefault();
+                    addField($(this).html());
+                })
+                $('#values').append(button);
+            }
+        }
+
+
     }
+    else{
+        $('#spreadsheetSettings').hide();
+        $('#noSpreadsheetChosen').show();
+
+    }
+
+
 
 }
 
