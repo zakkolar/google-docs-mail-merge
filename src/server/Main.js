@@ -84,10 +84,13 @@ function removePlaceholderTags(text){
 
 function addField(field){
   field = makePlaceholder(field);
-  var cursor = DocumentApp.getActiveDocument().getCursor();
-  var selection = DocumentApp.getActiveDocument().getSelection();
+  var doc = DocumentApp.getActiveDocument();
+  var cursor = doc.getCursor();
+  var selection = doc.getSelection();
   if (cursor) {
-    cursor.insertText(field);
+    var newText = cursor.insertText(field);
+    var position = doc.newPosition(newText, field.length);
+    doc.setCursor(position);
   }
   else if(selection){
     var elements = selection.getRangeElements();
@@ -100,7 +103,9 @@ function addField(field){
         var text = element.getText().substring(startIndex, endIndex + 1);
         element.deleteText(startIndex, endIndex);
         if( replace ) {
-          element.insertText(startIndex, field);
+          var newText = element.insertText(startIndex, field);
+          var position = doc.newPosition(newText, field.length + startIndex);
+          doc.setCursor(position);
           replace = false;
         }
       } else {
@@ -120,8 +125,9 @@ function addField(field){
     }
   }
   else {
-    DocumentApp.getActiveDocument().getBody().appendParagraph(text);
+    DocumentApp.getActiveDocument().getBody().appendParagraph(field);
   }
+
 }
 
 

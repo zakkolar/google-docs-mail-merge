@@ -59,7 +59,7 @@ function showSettings(settings) {
                 var button = $("<button>"+column+"</button>");
                 button.click(function(e){
                     e.preventDefault();
-                    addField($(this).html());
+                    addField($(this).html(), $(this));
                 })
                 $('#values').append(button);
             }
@@ -86,20 +86,25 @@ function showDefaultPlaceholders(){
         var button = $("<button>"+placeholder+"</button>");
         button.click(function(e){
             e.preventDefault();
-            addField($(this).html());
+            addField($(this).html(), $(this));
         })
         $('#defaultPlaceholders').append(button);
     }
 
 }
 
-function addField(field){
+function addField(field, button){
+    button.attr('disabled','true');
     google.script.run
         .withFailureHandler(
             function(msg, element) {
                 showError(msg, $('#button-bar'));
-                $('#save').disabled = false;
+                button.removeAttr('disabled');
             })
+        .withSuccessHandler(function(){
+            google.script.host.editor.focus();
+            button.removeAttr('disabled');
+        })
         .addField(field);
 }
 
