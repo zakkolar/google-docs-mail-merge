@@ -27,9 +27,6 @@
         .width-100 {
             width: 100%;
         }
-        #main{
-            display:none;
-        }
         /*.form-group{*/
             /*border-bottom-style:solid;*/
             /*border-color:#777;*/
@@ -37,42 +34,50 @@
             /*border-width:1px;*/
         /*}*/
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 <body>
-<div class="sidebar branding-below">
-    <div class="loader" id="loader">
+<div id="sidebar" class="sidebar branding-below">
+    <div class="loader" id="loader" v-if="loading">
         <svg class="circular" viewBox="25 25 50 50">
             <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
         </svg>
     </div>
-    <form id="main">
-        <button class="pickSpreadsheet" id="noSpreadsheetChosen">Choose a spreadsheet to merge</button>
-        <div id="spreadsheetSettings">
+    <form id="main" v-if="!loading">
+        <button class="pickSpreadsheet" v-if="!settings.spreadsheet" v-on:click="pickSpreadsheet">Choose a spreadsheet to merge</button>
+        <div v-if="settings.spreadsheet">
             <div class="block form-group">
-                <p><b>Spreadsheet:</b> <a id="spreadsheet_name"></a></p>
-                <button class="pickSpreadsheet">Choose a different spreadsheet</button>
+                <p><b>Spreadsheet:</b> <a v-bind:href="settings.spreadsheet.url" target="_blank">{{settings.spreadsheet.name}}</a></p>
+                <button class="pickSpreadsheet" v-on:click="pickSpreadsheet">Choose a different spreadsheet</button>
             </div>
             <div class="block form-group">
-                <label for="sheet"><b>Which tab contains the data you wish to merge?</b></label>
-                <select id="sheet">
+                <label for="sheet"><b>Sheet:</b> <select v-on:change="saveSheet" id="sheet" v-model="settings.spreadsheet.sheet">
+                    <option v-for="sheet in settings.spreadsheet.sheets" v-bind:value="sheet">
+                        {{sheet}}
+                    </option>
+                </select></label>
 
-                </select> <button id="save" class="blue">Save</button>
+
+
             </div>
             <hr>
-            <div id="fields">
-                <div class="block form-group">
-                    <b>Click on a field to put it into your template</b>
-                    <div id="values"></div>
-
-                </div>
-                <div class="block form-group">
-                    <div id="defaultPlaceholders"></div>
-                </div>
-            </div>
-            <div id="noFields">
+            <div v-if="settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='' ">
                 <p>This sheet seems to be empty. Add data or pick a different sheet to start merging.</p>
             </div>
-            <p><a href="#" id="refresh">(refresh field list)</a></p>
+            <div v-else>
+                <div class="block form-group">
+                    <b>Click on a field to put it into your template</b>
+                    <button v-on:click="addField($event, column)"  v-for="column in settings.spreadsheet.columnNames">
+                        {{column}}
+                    </button>
+                </div>
+                <div class="block form-group">
+                    <button  v-on:click="addField($event, placeholder)" v-for="placeholder in settings.defaultPlaceholders">
+                        {{placeholder}}
+                    </button>
+                </div>
+            </div>
+            <p><a v-on:click="refresh">(refresh field list)</a></p>
         </div>
     </form>
 </div>

@@ -61,7 +61,7 @@ function getDefaultPlaceholders(){
     PLACEHOLDER.NEXT
   ];
 
-  return JSON.stringify(defaultPlaceholders);
+  return defaultPlaceholders;
 }
 
 
@@ -241,7 +241,8 @@ function getSettings(){
     }
   }
   return {
-    spreadsheet: spreadsheet
+    spreadsheet: spreadsheet,
+    defaultPlaceholders: getDefaultPlaceholders()
   };
 }
 

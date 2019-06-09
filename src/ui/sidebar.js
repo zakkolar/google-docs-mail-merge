@@ -1,139 +1,89 @@
-$(function(){
-    loadSettings();
-    showDefaultPlaceholders();
-
-    $('.pickSpreadsheet').click(function(e){
-        e.preventDefault();
-        google.script.run.showSpreadsheetPicker();
-    })
-
-});
-
-function loadSettings(){
-    $('#loader').show();
-    $('#main').hide();
-    google.script.run.withSuccessHandler(showSettings)
-        .withFailureHandler(showError).getSettings();
-    $('#refresh').click(function(e){
-        e.preventDefault();
-        loadSettings();
-    })
-}
-
-
-function showSettings(settings) {
-    $('#main').show();
-    $('#loader').hide();
-
-    if(settings.spreadsheet){
-        $('#spreadsheetSettings').show();
-        $('#noSpreadsheetChosen').hide();
-        $('#spreadsheet_name').html(settings.spreadsheet.name);
-        $('#spreadsheet_name').attr('href',settings.spreadsheet.url);
-        $('#sheet').html('');
-        for(var i=0; i<settings.spreadsheet.sheets.length; i++){
-            var tab = settings.spreadsheet.sheets[i];
-            $('#sheet').append("<option value='"+tab+"'>"+tab+"</option>");
-        }
-        $('#sheet').val(settings.spreadsheet.sheet);
-
-        $('#save').click(function(e){
-            e.preventDefault();
-            var val = $('#sheet').val();
-           google.script.run.withSuccessHandler(function(){
-               loadSettings();
-           }).setSheetName(val);
-        });
-
-        if(settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]==""){
-            $('#noFields').show();
-            $('#fields').hide();
+var app = new Vue({
+    el: '#sidebar',
+    data: {
+        loading: true,
+        settings: {
+            spreadsheet: {
+                name: null,
+                sheets: [null],
+                sheet: null,
+                url: null,
+                columnNames: [null]
+            },
+            defaultPlaceholders: [null]
         }
 
-        else{
-            $('#noFields').hide();
-            $('#fields').show();
-            $('#values').html('');
-            for(var i=0; i<settings.spreadsheet.columnNames.length; i++){
-                var column = settings.spreadsheet.columnNames[i];
-                var button = $("<button>"+column+"</button>");
-                button.click(function(e){
-                    e.preventDefault();
-                    addField($(this).html(), $(this));
+    },
+    methods: {
+        loadSettings(){
+            var vue = this;
+            vue.loading = true;
+            google.script.run.withSuccessHandler(function(settings) {
+
+            var resetArray = function(array, newItems){
+
+                    array.length = 0;
+                    for(var i=0; i<newItems.length; i++){
+                        array.push(newItems[i]);
+                    }
+                }
+
+                vue.settings.spreadsheet.name = settings.spreadsheet.name || null;
+
+                resetArray(vue.settings.spreadsheet.sheets, settings.spreadsheet.sheets);
+
+                vue.settings.spreadsheet.sheet = settings.spreadsheet.sheet || null;
+
+                vue.settings.spreadsheet.url = settings.spreadsheet.url || null;
+
+                resetArray(vue.settings.spreadsheet.columnNames, settings.spreadsheet.columnNames);
+
+                resetArray(vue.settings.defaultPlaceholders, settings.defaultPlaceholders);
+
+                vue.loading = false;
+            }).withFailureHandler(function(err){
+            // @todo add failure handler
+            }).getSettings();
+        },
+        refresh(event){
+            event.preventDefault();
+            this.loadSettings();
+        },
+        addField(event, field){
+            event.preventDefault();
+            event.target.setAttribute('disabled','true');
+            google.script.run
+                .withFailureHandler(
+                    function(msg, element) {
+                    //    @todo add error handler;
+                        event.target.removeAttribute('disabled');
+                    })
+                .withSuccessHandler(function(){
+                    event.target.removeAttribute('disabled');
+                    google.script.host.editor.focus();
                 })
-                $('#values').append(button);
-            }
+                .addField(field);
+        },
+        pickSpreadsheet(e){
+          e.preventDefault();
+          google.script.run.showSpreadsheetPicker();
+        },
+        saveSheet(e){
+            e.target.setAttribute('disabled','true');
+            var vue = this;
+            google.script.run.withSuccessHandler(function(){
+                e.target.removeAttribute('disabled');
+                vue.loadSettings();
+            }).withFailureHandler(function(){
+                // @todo add error handler
+                e.target.removeAttribute('disabled');
+            }).setSheetName(vue.settings.spreadsheet.sheet);
         }
-
-
+    },
+    created(){
+        this.loadSettings();
     }
-    else{
-        $('#spreadsheetSettings').hide();
-        $('#noSpreadsheetChosen').show();
-
-    }
-
-
-
-}
-
-function showDefaultPlaceholders(){
-
-    var placeholders = <?!= getDefaultPlaceholders() ?>;
-
-    for(var i=0; i<placeholders.length; i++){
-        var placeholder = placeholders[i];
-        var button = $("<button>"+placeholder+"</button>");
-        button.click(function(e){
-            e.preventDefault();
-            addField($(this).html(), $(this));
-        })
-        $('#defaultPlaceholders').append(button);
-    }
-
-}
-
-function addField(field, button){
-    button.attr('disabled','true');
-    google.script.run
-        .withFailureHandler(
-            function(msg, element) {
-                showError(msg, $('#button-bar'));
-                button.removeAttr('disabled');
-            })
-        .withSuccessHandler(function(){
-            google.script.host.editor.focus();
-            button.removeAttr('disabled');
-        })
-        .addField(field);
-}
-
-/**
- * Runs a server-side function to translate the user-selected text and update
- * the sidebar ui with the resulting translation.
- */
-function save() {
-    $('#error').remove();
-    $('#save').disabled = true;
-    google.script.run
-        .withSuccessHandler(
-            function() {
-                $('#save').disabled = false;
-            })
-        .withFailureHandler(
-            function(msg, element) {
-                showError(msg, $('#button-bar'));
-                $('#save').disabled = false;
-            })
-        .savePreferences({
-            apiKey: $('#api_key').val(),
-            shortUrls: $('#short_urls').val(),
-            projectUrls: $('#project_urls').val(),
-            clicks: $('#clicks').val(),
-            linkType: $('[name=linkType]:checked').val()
-        });
-}
-
+});
 
 
 /**
