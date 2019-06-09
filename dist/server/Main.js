@@ -39,13 +39,13 @@ function merge(){
 }
 
 function getProperty(prop){
-  var scriptProperties = PropertiesService.getScriptProperties();
-  return scriptProperties.getProperty(prop) || null;
+  var documentProperties = PropertiesService.getDocumentProperties();
+  return documentProperties.getProperty(prop) || null;
 }
 
 function setProperty(prop, val){
-  var scriptProperties = PropertiesService.getScriptProperties();
-  scriptProperties.setProperty(prop, val);
+  var documentProperties = PropertiesService.getDocumentProperties();
+  documentProperties.setProperty(prop, val);
 }
 
 var PLACEHOLDER =  {
