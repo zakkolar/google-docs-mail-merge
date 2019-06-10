@@ -15,31 +15,20 @@ var app = new Vue({
         }
 
     },
+    computed: {
+      placeholders(){
+          var placeholders = [];
+          placeholders = placeholders.concat(this.settings.spreadsheet.columnNames).concat(this.settings.defaultPlaceholders);
+          return placeholders;
+      }
+    },
     methods: {
         loadSettings(){
             var vue = this;
             vue.loading = true;
             google.script.run.withSuccessHandler(function(settings) {
 
-            var resetArray = function(array, newItems){
-
-                    array.length = 0;
-                    for(var i=0; i<newItems.length; i++){
-                        array.push(newItems[i]);
-                    }
-                }
-
-                vue.settings.spreadsheet.name = settings.spreadsheet.name || null;
-
-                resetArray(vue.settings.spreadsheet.sheets, settings.spreadsheet.sheets);
-
-                vue.settings.spreadsheet.sheet = settings.spreadsheet.sheet || null;
-
-                vue.settings.spreadsheet.url = settings.spreadsheet.url || null;
-
-                resetArray(vue.settings.spreadsheet.columnNames, settings.spreadsheet.columnNames);
-
-                resetArray(vue.settings.defaultPlaceholders, settings.defaultPlaceholders);
+                vue.settings = Object.assign({},vue.settings, settings);
 
                 vue.loading = false;
             }).withFailureHandler(function(err){

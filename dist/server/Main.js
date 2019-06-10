@@ -48,6 +48,11 @@ function setProperty(prop, val){
   documentProperties.setProperty(prop, val);
 }
 
+function deleteProperty(prop){
+  var documentProperties = PropertiesService.getDocumentProperties();
+  documentProperties.deleteProperty(prop);
+}
+
 var PLACEHOLDER =  {
   PREFIX: "{{",
   SUFFIX: "}}",
@@ -133,11 +138,15 @@ function addField(field){
 
 function getSpreadsheetId(){
   return getProperty('SPREADSHEET_ID');
-  // return "1obr0qFmWUWJ15r7_kG4ggNOgtterytw2qYM2ttQ1iDA";
 }
 
 function setSpreadsheetId(id){
   setProperty("SPREADSHEET_ID",id);
+  clearSheetInfo();
+}
+
+function clearSheetInfo(){
+  deleteProperty("SHEET_NAME");
 }
 
 function getSpreadsheet(){
@@ -146,7 +155,14 @@ function getSpreadsheet(){
 }
 
 function getSheetName(){
-  return getProperty("SHEET_NAME");
+  var sheetName = getProperty("SHEET_NAME");
+  if(!sheetName){
+    var spreadsheet = getSpreadsheet();
+    if(spreadsheet){
+      sheetName = spreadsheet.getSheets()[0].getName();
+    }
+  }
+  return sheetName;
 }
 
 function setSheetName(name){
@@ -157,12 +173,7 @@ function getSheet(){
   var spreadsheet = getSpreadsheet();
   if(spreadsheet){
     var sheet = spreadsheet.getSheetByName(getSheetName());
-    if(sheet){
-      return sheet;
-    }
-    else{
-      return spreadsheet.getSheets()[0];
-    }
+    return sheet;
   }
 
   return null;
