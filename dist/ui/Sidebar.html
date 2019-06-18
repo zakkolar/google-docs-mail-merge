@@ -33,6 +33,11 @@
             /*padding-bottom:10px;*/
             /*border-width:1px;*/
         /*}*/
+        .field{
+            margin:10px 0px;
+            width:100%;
+            display: block;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
@@ -64,7 +69,7 @@
             <div v-else>
                 <div class="block form-group">
                     <b>Click on a field to put it into your template</b>
-                    <button  v-on:click="addField($event, placeholder)" v-for="placeholder in placeholders">
+                    <button class="field"  v-on:click="addField($event, placeholder)" v-for="placeholder in placeholders">
                         {{placeholder}}
                     </button>
                 </div>
