@@ -4,7 +4,7 @@
     <base target="_top">
     <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
     <!-- The CSS package above applies Google styling to buttons and other elements. -->
-
+    <script src="https://kit.fontawesome.com/a447f03be4.js"></script>
     <style>
         .branding-below {
             bottom: 56px;
@@ -72,7 +72,13 @@
             <p><a v-on:click="refresh">(refresh field list)</a></p>
         </div>
     </form>
+    <div class="error" v-if="error">
+        <i class="fas fa-times" style="cursor: pointer" v-on:click="error=null"></i>
+        {{error}}
+    </div>
 </div>
+
+
 
 
 

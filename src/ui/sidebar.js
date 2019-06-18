@@ -10,8 +10,9 @@ var app = new Vue({
                 url: null,
                 columnNames: [null]
             },
-            defaultPlaceholders: [null]
-        }
+            defaultPlaceholders: [null],
+        },
+        error: null
 
     },
     computed: {
@@ -31,7 +32,7 @@ var app = new Vue({
 
                 vue.loading = false;
             }).withFailureHandler(function(err){
-            // @todo add failure handler
+            vue.error = err;
             }).getSettings();
         },
         refresh(event){
@@ -41,10 +42,11 @@ var app = new Vue({
         addField(event, field){
             event.preventDefault();
             event.target.setAttribute('disabled','true');
+            var vue = this;
             google.script.run
                 .withFailureHandler(
-                    function(msg, element) {
-                    //    @todo add error handler;
+                    function(msg) {
+                    this.error = msg;
                         event.target.removeAttribute('disabled');
                     })
                 .withSuccessHandler(function(){
@@ -63,8 +65,8 @@ var app = new Vue({
             google.script.run.withSuccessHandler(function(){
                 e.target.removeAttribute('disabled');
                 vue.loadSettings();
-            }).withFailureHandler(function(){
-                // @todo add error handler
+            }).withFailureHandler(function(err){
+                vue.error = err;
                 e.target.removeAttribute('disabled');
             }).setSheetName(vue.settings.spreadsheet.sheet);
         }
