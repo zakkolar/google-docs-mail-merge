@@ -1,4 +1,8 @@
-<script type='text/javascript'>
+import '../stylesheets/loader.css';
+import {LoadScript} from "../LoadScript";
+
+LoadScript("https://apis.google.com/js/api.js?onload=onApiLoad");
+
 var DIALOG_DIMENSIONS = {
     width: 700,
     height: 425
@@ -7,7 +11,7 @@ var pickerApiLoaded = false;
 
 
 
-function onApiLoad() {
+window.onApiLoad = function() {
     gapi.load('picker', {
         'callback': function () {
             pickerApiLoaded = true;
@@ -20,7 +24,7 @@ function onApiLoad() {
 function createPicker(token) {
     if (pickerApiLoaded && token) {
 
-        $('#loader').hide();
+        document.getElementById('loader').style.display = 'none';
 
         var docsView = new google.picker.DocsView()
             .setIncludeFolders(true)
@@ -80,5 +84,3 @@ function showError(message) {
     document.getElementById('snipper').innerHTML = 'Error: ' + message;
 }
 
-
-</script>

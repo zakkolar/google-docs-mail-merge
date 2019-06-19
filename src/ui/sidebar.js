@@ -1,3 +1,7 @@
+import '../stylesheets/loader.css';
+
+import Vue from 'vue/dist/vue.esm';
+
 var app = new Vue({
     el: '#sidebar',
     data: {
@@ -15,11 +19,11 @@ var app = new Vue({
 
     },
     computed: {
-      placeholders(){
-          var placeholders = [];
-          placeholders = placeholders.concat(this.settings.spreadsheet.columnNames).concat(this.settings.defaultPlaceholders);
-          return placeholders;
-      }
+        placeholders(){
+            var placeholders = [];
+            placeholders = placeholders.concat(this.settings.spreadsheet.columnNames).concat(this.settings.defaultPlaceholders);
+            return placeholders;
+        }
     },
     methods: {
         loadSettings(){
@@ -31,7 +35,7 @@ var app = new Vue({
 
                 vue.loading = false;
             }).withFailureHandler(function(err){
-            // @todo add failure handler
+                // @todo add failure handler
             }).getSettings();
         },
         refresh(event){
@@ -44,7 +48,7 @@ var app = new Vue({
             google.script.run
                 .withFailureHandler(
                     function(msg, element) {
-                    //    @todo add error handler;
+                        //    @todo add error handler;
                         event.target.removeAttribute('disabled');
                     })
                 .withSuccessHandler(function(){
@@ -54,8 +58,8 @@ var app = new Vue({
                 .addField(field);
         },
         pickSpreadsheet(e){
-          e.preventDefault();
-          google.script.run.showSpreadsheetPicker();
+            e.preventDefault();
+            google.script.run.showSpreadsheetPicker();
         },
         saveSheet(e){
             e.target.setAttribute('disabled','true');
