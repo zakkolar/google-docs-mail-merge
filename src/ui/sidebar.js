@@ -1,4 +1,4 @@
-import '../stylesheets/loader.css';
+import './stylesheets/loader.css';
 
 import Vue from 'vue/dist/vue.esm';
 

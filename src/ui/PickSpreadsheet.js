@@ -1,5 +1,5 @@
-import '../stylesheets/loader.css';
-import {LoadScript} from "../LoadScript";
+import './stylesheets/loader.css';
+import {LoadScript} from "./LoadScript";
 
 LoadScript("https://apis.google.com/js/api.js?onload=onApiLoad");
 

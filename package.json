@@ -13,8 +13,9 @@
   },
   "scripts": {
     "watch": "npm-watch",
-    "compile": "node compile.js",
-    "build": "webpack --mode production",
+    "build:server": "node compile-server.js",
+    "build:ui": "webpack --mode production",
+    "build": "npm run build:server && npm run build:ui",
     "deploy": "clasp push",
     "dev": "npm run build && npm run deploy"
   },
