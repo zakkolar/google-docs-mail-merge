@@ -22,7 +22,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jquery": "^3.4.1",
     "npm-watch": "^0.6.0",
     "vue": "^2.6.10"
   },
