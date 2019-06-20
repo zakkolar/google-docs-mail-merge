@@ -1,4 +1,5 @@
 import '../loader.css';
+import "./Sidebar.css";
 
 import Vue from 'vue/dist/vue.esm';
 

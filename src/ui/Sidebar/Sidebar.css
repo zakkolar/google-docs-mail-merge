@@ -1,0 +1,32 @@
+.branding-below {
+    bottom: 56px;
+    top: 0;
+}
+.branding-text {
+    left: 7px;
+    position: relative;
+    top: 3px;
+}
+.col-contain {
+    overflow: hidden;
+}
+.logo {
+    vertical-align: middle;
+}
+.radio-spacer {
+    height: 20px;
+}
+.width-100 {
+    width: 100%;
+}
+/*.form-group{*/
+/*border-bottom-style:solid;*/
+/*border-color:#777;*/
+/*padding-bottom:10px;*/
+/*border-width:1px;*/
+/*}*/
+.field{
+    margin:10px 0px;
+    width:100%;
+    display: block;
+}
