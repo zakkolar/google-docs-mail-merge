@@ -64,17 +64,19 @@
 
             </div>
             <div v-if="settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='' ">
-                <p>This sheet seems to be empty. Add data or pick a different sheet to start merging.</p>
+                <p>This sheet seems to be empty. Add data or pick a different sheet to start merging. <a v-on:click="refresh">Click to refresh field list</a>.</p>
             </div>
             <div v-else>
                 <div class="block form-group">
                     <b>Click on a field to put it into your template</b>
-                    <button class="field"  v-on:click="addField($event, placeholder)" v-for="placeholder in placeholders">
-                        {{placeholder}}
-                    </button>
+                    <ul class="list-choice">
+                        <li class="choice-item" v-for="placeholder in placeholders">
+                            <a href="#"  v-on:click="addField($event, placeholder)">{{placeholder}}</a>
+                        </li>
+                    </ul>
+                    <p class="text-center"><a v-on:click="refresh">Refresh field list</a></p>
                 </div>
             </div>
-            <p><a v-on:click="refresh">(refresh field list)</a></p>
         </div>
     </form>
     <div class="error" v-if="error">

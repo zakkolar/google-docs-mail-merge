@@ -1,0 +1,89 @@
+.branding-below {
+    bottom: 56px;
+    top: 0;
+}
+.branding-text {
+    left: 7px;
+    position: relative;
+    top: 3px;
+}
+.col-contain {
+    overflow: hidden;
+}
+.logo {
+    vertical-align: middle;
+}
+.radio-spacer {
+    height: 20px;
+}
+.width-100 {
+    width: 100%;
+}
+/*.form-group{*/
+/*border-bottom-style:solid;*/
+/*border-color:#777;*/
+/*padding-bottom:10px;*/
+/*border-width:1px;*/
+/*}*/
+.field{
+    margin:10px 0px;
+    width:100%;
+    display: block;
+}
+
+.text-center{
+    text-align:center;
+}
+
+$border-radius: 2px;
+
+ul.list-choice {
+    margin: 8px 0 8px 0;
+    padding: 0;
+    li.choice-item {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border: 1px solid #dcdcdc;
+        margin-top:-1px;
+        line-height: 27px;
+        transition: all 100ms linear;
+        background: linear-gradient(top, #f5f5f5, #f1f1f1);
+        background: -moz-linear-gradient(top, #f5f5f5, #f1f1f1);
+        background: -ms-linear-gradient(top, #f5f5f5, #f1f1f1);
+        background: -o-linear-gradient(top, #f5f5f5, #f1f1f1);
+        background: -webkit-linear-gradient(top, #f5f5f5, #f1f1f1);
+
+
+        &:hover{
+            background: linear-gradient(top, #f8f8f8, #f1f1f1);
+            background: -moz-linear-gradient(top, #f8f8f8, #f1f1f1);
+            background: -ms-linear-gradient(top, #f8f8f8, #f1f1f1);
+            background: -o-linear-gradient(top, #f8f8f8, #f1f1f1);
+            background: -webkit-linear-gradient(top, #f8f8f8, #f1f1f1);
+
+            border: 1px solid #c6c6c6;
+        }
+
+        &:hover + li.choice-item{
+            border-top: 1px solid #c6c6c6;
+        }
+        a{
+            padding: 4px 12px;
+            display: block;
+            text-decoration:none;
+            color: #333;
+            font-weight: bold;
+            text-align:center;
+        }
+    }
+    li.choice-item:first-of-type{
+        border-radius: $border-radius $border-radius 0 0;
+    }
+    li.choice-item:last-of-type{
+        border-radius: 0 0 $border-radius $border-radius;
+    }
+    li.separator{
+        height:10px;
+    }
+}
