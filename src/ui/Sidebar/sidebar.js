@@ -16,8 +16,16 @@ var app = new Vue({
                 columnNames: [null]
             },
             defaultPlaceholders: [null],
+            ruleList: [null],
+            ruleModeList: [],
+            ruleMode: null
         },
-        error: null
+        error: null,
+        ruleEditor:null,
+        ruleEditorIndex: -1,
+        rules: [],
+
+
 
     },
     computed: {
@@ -25,6 +33,23 @@ var app = new Vue({
             var placeholders = [];
             placeholders = placeholders.concat(this.settings.spreadsheet.columnNames).concat(this.settings.defaultPlaceholders);
             return placeholders;
+        },
+        groupedRuleList(){
+            const ruleGroup = {};
+            const types = [];
+            this.settings.ruleList.forEach((rule)=>{
+                const type = rule.type;
+                if(types.indexOf(type)===-1){
+                    types.push(type);
+                }
+            });
+
+            types.forEach((type)=>{
+                ruleGroup[type] = this.settings.ruleList.filter((rule)=>{
+                    return rule.type === type;
+                });
+            });
+            return ruleGroup;
         }
     },
     methods: {
@@ -35,10 +60,59 @@ var app = new Vue({
 
                 vue.settings = Object.assign({},vue.settings, settings);
 
+
                 vue.loading = false;
             }).withFailureHandler(function(err){
             vue.error = err;
             }).getSettings();
+        },
+        newRule(e){
+            e.preventDefault();
+            this.ruleEditorIndex = -1;
+            this.ruleEditor = this.rulePlaceholder();
+        },
+        clearRuleEditor(e){
+            e.preventDefault();
+            this.ruleEditor = null;
+            this.ruleEditorIndex = -1;
+        },
+        deleteRule(index, e){
+            e.preventDefault();
+
+            if(this.ruleEditorIndex === index){
+                this.newRule(e);
+            }
+
+            if(this.ruleEditorIndex > index){
+                this.ruleEditorIndex--;
+            }
+
+            this.rules.splice(index,1);
+        },
+        saveRule(e){
+            e.preventDefault();
+            if(this.ruleEditorIndex<0){
+                this.rules.push(this.ruleEditor);
+            }
+            else{
+                Object.assign(this.rules[this.ruleEditorIndex], this.ruleEditor)
+            }
+            this.ruleEditor = null;
+        },
+        editRule(index, e){
+            e.preventDefault();
+            this.ruleEditorIndex = index;
+            this.ruleEditor = Object.assign({},this.ruleEditor, this.rules[index]);
+
+            // Object.assign(this.ruleEditor, this.rules[index]);
+        },
+        rulePlaceholder(){
+            const rule = {
+                type: this.settings.ruleList[0] || null,
+                field: this.settings.spreadsheet.columnNames[0] || null,
+                value: null
+            }
+            return rule;
         },
         refresh(event){
             event.preventDefault();

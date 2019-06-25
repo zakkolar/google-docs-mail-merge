@@ -5,10 +5,21 @@ const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const WebpackCleanPlugin = require('webpack-clean');
 
+const GasPlugin = require("gas-webpack-plugin");
+
+var WebpackOnBuildPlugin = require('on-build-webpack');
 
 const path = require('path');
 
 const outputPath = path.resolve(__dirname, 'dist/ui');
+
+
+
+
+const ClaspPush = new WebpackOnBuildPlugin(function(stats){
+    const { exec } = require('child_process');
+    exec("clasp push")
+});
 
 
 const HtmlPlugins = components.map((component)=>{
@@ -27,8 +38,9 @@ components.forEach((component)=>{
     entry[component.id] = component.js;
 })
 
-module.exports = {
+const clientConfig = {
     entry: entry,
+    watch: true,
     output: {
         path: outputPath
     },
@@ -64,6 +76,40 @@ module.exports = {
         new HtmlWebpackInlineSourcePlugin(),
         new WebpackCleanPlugin(components.map((component)=>{
             return path.basename(component.js)
-        }), {basePath: outputPath})
+        }), {basePath: outputPath}),
+        ClaspPush,
     ]),
 };
+
+const serverConfig = {
+    entry: './src/server/Main.ts',
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
+            }
+        ]
+    },
+    resolve: {
+        extensions: [ '.tsx', '.ts', '.js' ]
+    },
+    output: {
+        filename: 'Main.js',
+        path: path.resolve(__dirname, 'dist/server')
+
+    },
+    plugins: [
+        new CleanWebpackPlugin(),
+        new GasPlugin(),
+        ClaspPush,
+    ],
+    optimization: {
+        // We no not want to minimize our code.
+        minimize: false
+    },
+}
+
+
+module.exports = [clientConfig, serverConfig];

@@ -76,6 +76,34 @@
                     </ul>
                     <p class="text-center"><a v-on:click="refresh">Refresh field list</a></p>
                 </div>
+
+                <b>Merge conditions</b>
+                <p>Merge rows if <select v-model="settings.ruleMode"><option v-bind:value="mode" v-for="mode in settings.ruleModeList">{{mode}}</option></select> of the following are true</p>
+                <div v-if="ruleEditor">
+                    <select v-model="ruleEditor.field">
+                        <option v-for="name in settings.spreadsheet.columnNames" v-bind:value="name">{{name}}</option>
+                    </select>
+                    <select v-model="ruleEditor.type">
+                        <optgroup v-for="(ruleType, type) in groupedRuleList" v-bind:label="type">
+                            <option v-for="rule in ruleType" v-bind:value="rule">{{rule.label}}</option>
+                        </optgroup>
+                    </select>
+                    <input type="text" v-if="ruleEditor.type.showComparison" v-model="ruleEditor.value">
+                </div>
+                <button v-if="ruleEditor" v-on:click="saveRule">Save <span v-if="ruleEditorIndex<0">new</span> rule</button>
+                <button v-if="ruleEditor" v-on:click="clearRuleEditor">Cancel</button>
+                <button v-if="!ruleEditor" v-on:click="newRule">New rule</button>
+
+                <ul>
+                    <li v-for="(rule, index) in rules">
+                        <a href="#" v-on:click="editRule(index, $event)">edit</a>
+                        <a href="#" v-on:click="deleteRule(index, $event)">delete</a>
+                        {{rule.field}} {{rule.type.label}} <span v-if="rule.type.showComparison">{{rule.value}}</span>
+                    </li>
+                </ul>
+
+
+
             </div>
         </div>
     </form>
