@@ -48,7 +48,12 @@
             <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
         </svg>
     </div>
-    <form id="main" v-if="!loading">
+    <div v-if="mergeURL">
+        <h1>Merge complete!</h1>
+        <p><a v-bind:href="mergeURL" target="_blank">View your merged document</a></p>
+        <p><button v-on:click="mergeURL=null">Return to merge setup</button></p>
+    </div>
+    <form id="main" v-if="!loading && !mergeURL">
         <button class="pickSpreadsheet" v-if="!settings.spreadsheet" v-on:click="pickSpreadsheet">Choose a spreadsheet to merge</button>
         <div v-if="settings.spreadsheet">
             <div class="block form-group">
@@ -77,8 +82,17 @@
                     <p class="text-center"><a v-on:click="refresh">Refresh field list</a></p>
                 </div>
 
+                <div>
+                    <b>Merge rows:</b>
+                    <input type="number" v-model="settings.spreadsheet.startRow" v-on:change="rowsDirty = true" v-on:keydown="rowsDirty = true" size="3">
+                    to
+                    <input size="3" v-model="settings.spreadsheet.endRow" v-on:keydown="rowsDirty = true" v-on:change="rowsDirty = true" type="number">
+                    <span v-if="rowsSaving">Saving...</span>
+                    <button v-if="rowsDirty && !rowsSaving" v-on:click="saveMergeRows">Save</button>
+                </div>
+
                 <b>Merge conditions</b>
-                <p>Merge rows if <select v-model="settings.ruleMode"><option v-bind:value="mode" v-for="mode in settings.ruleModeList">{{mode}}</option></select> of the following are true</p>
+                <p>Merge rows if <select v-on:change="storeRules" v-model="settings.ruleMode"><option v-bind:value="mode" v-for="mode in settings.ruleModeList">{{mode}}</option></select> of the following are true</p>
                 <div v-if="ruleEditor">
                     <select v-model="ruleEditor.field">
                         <option v-for="name in settings.spreadsheet.columnNames" v-bind:value="name">{{name}}</option>
@@ -93,12 +107,13 @@
                 <button v-if="ruleEditor" v-on:click="saveRule">Save <span v-if="ruleEditorIndex<0">new</span> rule</button>
                 <button v-if="ruleEditor" v-on:click="clearRuleEditor">Cancel</button>
                 <button v-if="!ruleEditor" v-on:click="newRule">New rule</button>
+                <span v-if="ruleSaving">Saving...</span>
 
                 <ul>
-                    <li v-for="(rule, index) in rules">
+                    <li v-for="(rule, index) in settings.rules">
                         <a href="#" v-on:click="editRule(index, $event)">edit</a>
                         <a href="#" v-on:click="deleteRule(index, $event)">delete</a>
-                        {{rule.field}} {{rule.type.label}} <span v-if="rule.type.showComparison">{{rule.value}}</span>
+                        <span v-bind:class="{editorFocus: index===ruleEditorIndex}">{{rule.field}} {{rule.type.label}} <span v-if="rule.type.showComparison">{{rule.value}}</span></span>
                     </li>
                 </ul>
 
@@ -106,7 +121,9 @@
 
             </div>
         </div>
+        <button class="blue" v-bind:disabled="disableMergeButton" v-on:click="runMerge">Run merge</button>
     </form>
+
     <div class="error" v-if="error">
         <i class="fas fa-times" style="cursor: pointer" v-on:click="error=null"></i>
         {{error}}

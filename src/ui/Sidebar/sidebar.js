@@ -13,17 +13,24 @@ var app = new Vue({
                 sheets: [null],
                 sheet: null,
                 url: null,
-                columnNames: [null]
+                columnNames: [null],
+                startRow: 0,
+                endRow: 0,
             },
             defaultPlaceholders: [null],
             ruleList: [null],
             ruleModeList: [],
-            ruleMode: null
+            ruleMode: null,
+            rules: []
         },
         error: null,
         ruleEditor:null,
         ruleEditorIndex: -1,
-        rules: [],
+        ruleSaving: false,
+        rowsSaving: false,
+        rowsDirty: false,
+        mergeURL: null
+
 
 
 
@@ -50,20 +57,31 @@ var app = new Vue({
                 });
             });
             return ruleGroup;
+        },
+        disableMergeButton(){
+            return this.ruleSaving || this.loading || this.rowsSaving;
         }
+
     },
     methods: {
+        showError(err){
+            vue.error = err;
+        },
         loadSettings(){
             var vue = this;
             vue.loading = true;
             google.script.run.withSuccessHandler(function(settings) {
+
+                if(!settings.rules){
+                    settings.rules = [];
+                }
 
                 vue.settings = Object.assign({},vue.settings, settings);
 
 
                 vue.loading = false;
             }).withFailureHandler(function(err){
-            vue.error = err;
+            this.error=err
             }).getSettings();
         },
         newRule(e){
@@ -87,24 +105,47 @@ var app = new Vue({
                 this.ruleEditorIndex--;
             }
 
-            this.rules.splice(index,1);
+            this.settings.rules.splice(index,1);
+            this.storeRules();
         },
         saveRule(e){
             e.preventDefault();
             if(this.ruleEditorIndex<0){
-                this.rules.push(this.ruleEditor);
+                this.settings.rules.push(this.ruleEditor);
             }
             else{
-                Object.assign(this.rules[this.ruleEditorIndex], this.ruleEditor)
+                Object.assign(this.settings.rules[this.ruleEditorIndex], this.ruleEditor)
             }
+            this.storeRules();
             this.ruleEditor = null;
         },
         editRule(index, e){
             e.preventDefault();
             this.ruleEditorIndex = index;
-            this.ruleEditor = Object.assign({},this.ruleEditor, this.rules[index]);
+            this.ruleEditor = Object.assign({},this.ruleEditor, this.settings.rules[index]);
 
-            // Object.assign(this.ruleEditor, this.rules[index]);
+        },
+        storeRules(){
+            this.ruleSaving = true;
+            const vue = this;
+            google.script.run.withFailureHandler(function(msg){
+                vue.error = msg;
+                vue.ruleSaving = false;
+            }).withSuccessHandler(function(){
+                vue.ruleSaving = false;
+            }).setRules(this.settings.spreadsheet.sheet, this.settings.rules, this.settings.ruleMode);
+        },
+        saveMergeRows(e){
+            e.preventDefault();
+            this.rowsSaving = true;
+            const vue = this;
+            google.script.run.withSuccessHandler(()=>{
+                vue.rowsSaving = false;
+                vue.rowsDirty = false;
+            }).withFailureHandler((err)=>{
+                vue.rowsSaving = false;
+                vue.error = err;
+            }).setRows(this.settings.spreadsheet.startRow, this.settings.spreadsheet.endRow);
         },
         rulePlaceholder(){
             const rule = {
@@ -125,7 +166,7 @@ var app = new Vue({
             google.script.run
                 .withFailureHandler(
                     function(msg) {
-                    vue.error = msg;
+                    vue.error=msg;
                         event.target.removeAttribute('disabled');
 
                     })
@@ -141,7 +182,7 @@ var app = new Vue({
         },
         saveSheet(e){
             e.target.setAttribute('disabled','true');
-            var vue = this;
+            const vue = this;
             google.script.run.withSuccessHandler(function(){
                 e.target.removeAttribute('disabled');
                 vue.loadSettings();
@@ -149,6 +190,22 @@ var app = new Vue({
                 vue.error = err;
                 e.target.removeAttribute('disabled');
             }).setSheetName(vue.settings.spreadsheet.sheet);
+        },
+        runMerge(e){
+            e.preventDefault();
+            const vue = this;
+            vue.loading = true;
+            google.script.run.withFailureHandler(function(err){
+                vue.error = err;
+                vue.loading = false;
+
+            }).withSuccessHandler(function(url){
+
+                vue.mergeURL = url;
+                vue.loading = false;
+
+
+            }).merge();
         }
     },
     created(){

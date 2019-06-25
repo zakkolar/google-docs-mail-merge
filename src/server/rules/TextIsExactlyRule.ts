@@ -10,4 +10,16 @@ export class TextIsExactlyRule extends TextRule{
         super("is exactly");
     }
 
+    formatField(field: string) {
+
+        field = super.formatField(field).toString();
+
+        const lower = field.toLowerCase();
+        if(lower === "true" || lower === "false"){
+            return lower;
+        }
+
+        return field;
+    }
+
 }

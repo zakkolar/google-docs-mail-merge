@@ -17,7 +17,7 @@ export abstract class Rule{
         }
     }
 
-    formatField(field: String){
+    formatField(field: string){
         if(!field){
             field = "";
         }

@@ -1,12 +1,13 @@
 import MergeData from "./MergeData";
 import {RuleList} from "./RuleList";
+import {Rule} from "./rules/Rule";
+import set = Reflect.set;
 
 function onOpen() {
   Logger.log('hi');
   var ui = DocumentApp.getUi();
   ui.createMenu('Mail merge')
-      .addItem('Setup merge', 'showSidebar')
-      .addItem('Merge', 'merge')
+      .addItem('Start', 'showSidebar')
       .addToUi();
 }
 
@@ -39,12 +40,22 @@ function merge(){
 
   var templateFile = DriveApp.getFileById(templateDoc.getId());
 
-  var mergedDoc = DocumentApp.openById(templateFile.makeCopy("Merged").getId());
+  const docName = templateDoc.getName();
+
+  let title = `${docName} - Merged`;
+
+  // const ui = DocumentApp.getUi();
+
+  // const response = ui.prompt("Name of merged document:", ui.ButtonSet.OK)
+
+  var mergedDoc = DocumentApp.openById(templateFile.makeCopy(title).getId());
 
   // @ts-ignore
   addMergeData(mergedDoc);
 
   var link = mergedDoc.getUrl();
+
+  return link;
 
 }
 // @ts-ignore
@@ -263,11 +274,114 @@ function getMergeValues(){
     }
     mergeValues.push(currentData);
   }
+
+  const startIndex = getStartRow() - 2;
+  // endIndex not included
+  const endIndex = Math.min(getEndRow() - 1, mergeValues.length);
+
+  mergeValues = mergeValues.slice(startIndex, endIndex);
+
+
+
+  const sheetName = getSheetName();
+  const storedRules = getRules(sheetName);
+
+  mergeValues = mergeValues.filter((row)=>{
+    const include = testRules(storedRules, row);
+    Logger.log(row);
+    Logger.log(testRules(storedRules, row));
+    return include;
+  });
+
   return mergeValues;
+}
+
+function testRules(rules, row){
+  if(rules.length == 0){
+    return true;
+  }
+  const passing = [];
+  rules.forEach((ruleSettings)=>{
+    const ruleId = ruleSettings.id;
+    const ruleField = ruleSettings.field;
+    const ruleValue = ruleSettings.value;
+
+    const rule:Rule = getRule(ruleId);
+
+    const fieldValue = row[ruleField];
+
+    passing.push(rule.test(fieldValue, ruleValue));
+  });
+
+  const mode = getRuleMode();
+
+  if(mode==="any"){
+    for(let i =0; i<passing.length; i++){
+      if(passing[i]){
+        return true;
+      }
+    }
+    return false;
+  }
+  else{
+    for(let i =0; i<passing.length; i++){
+      if(!passing[i]){
+        return false;
+      }
+    }
+    return true;
+  }
+
 }
 
 function getRuleList(){
   return RuleList;
+}
+
+function getStartRow(){
+  let startRow = parseInt(getProperty("START_ROW")) || 0;
+  if(isNaN(startRow)){
+    startRow = 0;
+  }
+  startRow = Math.max(startRow, 2);
+
+  return startRow;
+}
+function getEndRow(){
+  let endRow = parseInt(getProperty("END_ROW")) || getRange().getNumRows();
+  if(isNaN(endRow)){
+    endRow = getRange().getNumRows();
+  }
+
+  return endRow;
+}
+
+function setStartRow(row){
+  setProperty("START_ROW", row);
+}
+
+function setEndRow(row){
+  setProperty("END_ROW", row);
+}
+
+function setRows(start, end){
+  setStartRow(start);
+  setEndRow(end);
+}
+
+// @ts-ignore
+global.setRows = setRows;
+
+function getRule(id){
+
+  const rule = getRuleList()[id];
+  return rule;
+}
+
+function transformRuleToUi(inRule, id){
+  const rule = inRule.serialize();
+  rule["id"] = id;
+  return rule;
 }
 
 function getRuleUiList(){
@@ -277,11 +391,9 @@ function getRuleUiList(){
   const rules = [];
 
   ids.forEach((id)=>{
-    const rule = ruleList[id].serialize();
-    rule["id"] = id;
+    const rule = transformRuleToUi(ruleList[id], id);
     rules.push(rule);
   });
-
   return rules;
 }
 
@@ -290,26 +402,88 @@ function getRuleModes(){
 }
 
 function getRuleMode(){
-  return "all";
+  let ruleMode = getProperty("RULE_MODE");
+  if(!ruleMode){
+    ruleMode = getRuleModes[0];
+  }
+  return ruleMode;
+}
+
+function setRuleMode(mode){
+  if(getRuleModes().indexOf(mode)>-1){
+    setProperty("RULE_MODE", mode);
+  }
+}
+
+function rulesKey(sheet){
+  return "RULES."+sheet;
+}
+
+function setRules(sheet, inRules, mode){
+  const rules = [];
+  setRuleMode(mode);
+  inRules.forEach((rule)=>{
+    if(!rule.field){
+      throw "Rule field can't be blank";
+    }
+    if(!rule.type){
+      throw "Rule type can't be blank";
+    }
+    rules.push({
+      field: rule.field,
+      id: rule.type.id,
+      value: rule.value
+    })
+  })
+  setProperty(rulesKey(sheet), JSON.stringify(rules));
+}
+// @ts-ignore
+global.setRules = setRules;
+
+function getRules(sheet){
+  let rules = JSON.parse(getProperty(rulesKey(sheet)));
+  rules = rules.filter((rule)=>{
+    return getColumnNames().indexOf(rule.field)>-1;
+  });
+  return rules;
+}
+
+function getRulesForUi(sheet){
+  const rulesIn = getRules(sheet);
+  const rules = [];
+  rulesIn.forEach((rule)=>{
+    Logger.log(rule);
+    rules.push({
+      field: rule.field,
+      type: transformRuleToUi(getRule(rule.id),rule.id),
+      value: rule.value
+    })
+  });
+  return rules;
 }
 
 function getSettings(){
   var spreadsheet = null;
+  let rules = [];
   if(getSpreadsheetId()!=null){
     spreadsheet = {
       name: getSpreadsheet().getName(),
       sheets: getSheets(),
       sheet: getSheetName(),
       url: getSpreadsheetUrl(),
-      columnNames: getColumnNames()
+      columnNames: getColumnNames(),
+      startRow: getStartRow(),
+      endRow: getEndRow(),
     }
+    rules = getRulesForUi(getSheetName());
   }
   return {
     spreadsheet: spreadsheet,
     defaultPlaceholders: getDefaultPlaceholders(),
     ruleList: getRuleUiList(),
     ruleModeList: getRuleModes(),
-    ruleMode: getRuleMode()
+    ruleMode: getRuleMode(),
+    rules: rules
   };
 }
 // @ts-ignore

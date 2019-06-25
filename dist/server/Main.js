@@ -20,6 +20,12 @@ function setSpreadsheetId() {
 function setSheetName() {
 }
 // @ts-ignore
+function setRows() {
+}
+// @ts-ignore
+function setRules() {
+}
+// @ts-ignore
 function getSettings() {
 }
 // @ts-ignore
@@ -113,7 +119,7 @@ function getOAuthToken() {
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -231,49 +237,19 @@ var FIELD_TYPE;
 
 
 /***/ }),
-/* 3 */,
-/* 4 */,
-/* 5 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || new Function("return this")();
-} catch (e) {
-	// This works if the window reference is available
-	if (typeof window === "object") g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 6 */,
-/* 7 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 exports.__esModule = true;
-var MergeData_1 = __webpack_require__(8);
-var RuleList_1 = __webpack_require__(9);
+var MergeData_1 = __webpack_require__(5);
+var RuleList_1 = __webpack_require__(6);
 function onOpen() {
     Logger.log('hi');
     var ui = DocumentApp.getUi();
     ui.createMenu('Mail merge')
-        .addItem('Setup merge', 'showSidebar')
-        .addItem('Merge', 'merge')
+        .addItem('Start', 'showSidebar')
         .addToUi();
 }
 // @ts-ignore
@@ -297,10 +273,15 @@ global.showSpreadsheetPicker = showSpreadsheetPicker;
 function merge() {
     var templateDoc = DocumentApp.getActiveDocument();
     var templateFile = DriveApp.getFileById(templateDoc.getId());
-    var mergedDoc = DocumentApp.openById(templateFile.makeCopy("Merged").getId());
+    var docName = templateDoc.getName();
+    var title = docName + " - Merged";
+    // const ui = DocumentApp.getUi();
+    // const response = ui.prompt("Name of merged document:", ui.ButtonSet.OK)
+    var mergedDoc = DocumentApp.openById(templateFile.makeCopy(title).getId());
     // @ts-ignore
     addMergeData(mergedDoc);
     var link = mergedDoc.getUrl();
+    return link;
 }
 // @ts-ignore
 global.merge = merge;
@@ -484,18 +465,96 @@ function getMergeValues() {
         }
         mergeValues.push(currentData);
     }
+    var startIndex = getStartRow() - 2;
+    // endIndex not included
+    var endIndex = Math.min(getEndRow() - 1, mergeValues.length);
+    mergeValues = mergeValues.slice(startIndex, endIndex);
+    var sheetName = getSheetName();
+    var storedRules = getRules(sheetName);
+    mergeValues = mergeValues.filter(function (row) {
+        var include = testRules(storedRules, row);
+        Logger.log(row);
+        Logger.log(testRules(storedRules, row));
+        return include;
+    });
     return mergeValues;
+}
+function testRules(rules, row) {
+    if (rules.length == 0) {
+        return true;
+    }
+    var passing = [];
+    rules.forEach(function (ruleSettings) {
+        var ruleId = ruleSettings.id;
+        var ruleField = ruleSettings.field;
+        var ruleValue = ruleSettings.value;
+        var rule = getRule(ruleId);
+        var fieldValue = row[ruleField];
+        passing.push(rule.test(fieldValue, ruleValue));
+    });
+    var mode = getRuleMode();
+    if (mode === "any") {
+        for (var i = 0; i < passing.length; i++) {
+            if (passing[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+    else {
+        for (var i = 0; i < passing.length; i++) {
+            if (!passing[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 function getRuleList() {
     return RuleList_1.RuleList;
+}
+function getStartRow() {
+    var startRow = parseInt(getProperty("START_ROW")) || 0;
+    if (isNaN(startRow)) {
+        startRow = 0;
+    }
+    startRow = Math.max(startRow, 2);
+    return startRow;
+}
+function getEndRow() {
+    var endRow = parseInt(getProperty("END_ROW")) || getRange().getNumRows();
+    if (isNaN(endRow)) {
+        endRow = getRange().getNumRows();
+    }
+    return endRow;
+}
+function setStartRow(row) {
+    setProperty("START_ROW", row);
+}
+function setEndRow(row) {
+    setProperty("END_ROW", row);
+}
+function setRows(start, end) {
+    setStartRow(start);
+    setEndRow(end);
+}
+// @ts-ignore
+global.setRows = setRows;
+function getRule(id) {
+    var rule = getRuleList()[id];
+    return rule;
+}
+function transformRuleToUi(inRule, id) {
+    var rule = inRule.serialize();
+    rule["id"] = id;
+    return rule;
 }
 function getRuleUiList() {
     var ruleList = getRuleList();
     var ids = Object.getOwnPropertyNames(ruleList);
     var rules = [];
     ids.forEach(function (id) {
-        var rule = ruleList[id].serialize();
-        rule["id"] = id;
+        var rule = transformRuleToUi(ruleList[id], id);
         rules.push(rule);
     });
     return rules;
@@ -504,25 +563,82 @@ function getRuleModes() {
     return ["any", "all"];
 }
 function getRuleMode() {
-    return "all";
+    var ruleMode = getProperty("RULE_MODE");
+    if (!ruleMode) {
+        ruleMode = getRuleModes[0];
+    }
+    return ruleMode;
+}
+function setRuleMode(mode) {
+    if (getRuleModes().indexOf(mode) > -1) {
+        setProperty("RULE_MODE", mode);
+    }
+}
+function rulesKey(sheet) {
+    return "RULES." + sheet;
+}
+function setRules(sheet, inRules, mode) {
+    var rules = [];
+    setRuleMode(mode);
+    inRules.forEach(function (rule) {
+        if (!rule.field) {
+            throw "Rule field can't be blank";
+        }
+        if (!rule.type) {
+            throw "Rule type can't be blank";
+        }
+        rules.push({
+            field: rule.field,
+            id: rule.type.id,
+            value: rule.value
+        });
+    });
+    setProperty(rulesKey(sheet), JSON.stringify(rules));
+}
+// @ts-ignore
+global.setRules = setRules;
+function getRules(sheet) {
+    var rules = JSON.parse(getProperty(rulesKey(sheet)));
+    rules = rules.filter(function (rule) {
+        return getColumnNames().indexOf(rule.field) > -1;
+    });
+    return rules;
+}
+function getRulesForUi(sheet) {
+    var rulesIn = getRules(sheet);
+    var rules = [];
+    rulesIn.forEach(function (rule) {
+        Logger.log(rule);
+        rules.push({
+            field: rule.field,
+            type: transformRuleToUi(getRule(rule.id), rule.id),
+            value: rule.value
+        });
+    });
+    return rules;
 }
 function getSettings() {
     var spreadsheet = null;
+    var rules = [];
     if (getSpreadsheetId() != null) {
         spreadsheet = {
             name: getSpreadsheet().getName(),
             sheets: getSheets(),
             sheet: getSheetName(),
             url: getSpreadsheetUrl(),
-            columnNames: getColumnNames()
+            columnNames: getColumnNames(),
+            startRow: getStartRow(),
+            endRow: getEndRow(),
         };
+        rules = getRulesForUi(getSheetName());
     }
     return {
         spreadsheet: spreadsheet,
         defaultPlaceholders: getDefaultPlaceholders(),
         ruleList: getRuleUiList(),
         ruleModeList: getRuleModes(),
-        ruleMode: getRuleMode()
+        ruleMode: getRuleMode(),
+        rules: rules
     };
 }
 // @ts-ignore
@@ -649,10 +765,36 @@ function elContainsPlaceholderFromList(list, el) {
     return false;
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(4)))
 
 /***/ }),
-/* 8 */
+/* 4 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || new Function("return this")();
+} catch (e) {
+	// This works if the window reference is available
+	if (typeof window === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -680,25 +822,25 @@ exports["default"] = MergeData;
 
 
 /***/ }),
-/* 9 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-var TextIsEmptyRule_1 = __webpack_require__(10);
-var TextIsNotEmptyRule_1 = __webpack_require__(23);
-var TextContainsRule_1 = __webpack_require__(24);
-var TextDoesNotContainRule_1 = __webpack_require__(25);
-var TextStartsWithRule_1 = __webpack_require__(26);
-var TextEndsWithRule_1 = __webpack_require__(27);
-var TextIsExactlyRule_1 = __webpack_require__(28);
-var NumberGreaterThanRule_1 = __webpack_require__(29);
-var NumberGreaterThanOrEqualToRule_1 = __webpack_require__(30);
-var NumberLessThanRule_1 = __webpack_require__(31);
-var NumberLessThanRuleOrEqualToRule_1 = __webpack_require__(32);
-var NumberEqualToRule_1 = __webpack_require__(33);
-var NumberNotEqualToRule_1 = __webpack_require__(34);
+var TextIsEmptyRule_1 = __webpack_require__(7);
+var TextIsNotEmptyRule_1 = __webpack_require__(8);
+var TextContainsRule_1 = __webpack_require__(9);
+var TextDoesNotContainRule_1 = __webpack_require__(10);
+var TextStartsWithRule_1 = __webpack_require__(11);
+var TextEndsWithRule_1 = __webpack_require__(12);
+var TextIsExactlyRule_1 = __webpack_require__(13);
+var NumberGreaterThanRule_1 = __webpack_require__(14);
+var NumberGreaterThanOrEqualToRule_1 = __webpack_require__(15);
+var NumberLessThanRule_1 = __webpack_require__(16);
+var NumberLessThanRuleOrEqualToRule_1 = __webpack_require__(17);
+var NumberEqualToRule_1 = __webpack_require__(18);
+var NumberNotEqualToRule_1 = __webpack_require__(19);
 exports.RuleList = {
     isEmpty: new TextIsEmptyRule_1.TextIsEmptyRule(),
     isNotEmpty: new TextIsNotEmptyRule_1.TextIsNotEmptyRule(),
@@ -717,7 +859,7 @@ exports.RuleList = {
 
 
 /***/ }),
-/* 10 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -754,19 +896,7 @@ exports.TextIsEmptyRule = TextIsEmptyRule;
 
 
 /***/ }),
-/* 11 */,
-/* 12 */,
-/* 13 */,
-/* 14 */,
-/* 15 */,
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */,
-/* 20 */,
-/* 21 */,
-/* 22 */,
-/* 23 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -803,7 +933,7 @@ exports.TextIsNotEmptyRule = TextIsNotEmptyRule;
 
 
 /***/ }),
-/* 24 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -837,7 +967,7 @@ exports.TextContainsRule = TextContainsRule;
 
 
 /***/ }),
-/* 25 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -871,7 +1001,7 @@ exports.TextDoesNotContainRule = TextDoesNotContainRule;
 
 
 /***/ }),
-/* 26 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -905,7 +1035,7 @@ exports.TextStartsWithRule = TextStartsWithRule;
 
 
 /***/ }),
-/* 27 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -939,7 +1069,7 @@ exports.TextEndsWithRule = TextEndsWithRule;
 
 
 /***/ }),
-/* 28 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -967,13 +1097,21 @@ var TextIsExactlyRule = /** @class */ (function (_super) {
     TextIsExactlyRule.prototype.rule = function (mergeField, comparison) {
         return mergeField === comparison;
     };
+    TextIsExactlyRule.prototype.formatField = function (field) {
+        field = _super.prototype.formatField.call(this, field).toString();
+        var lower = field.toLowerCase();
+        if (lower === "true" || lower === "false") {
+            return lower;
+        }
+        return field;
+    };
     return TextIsExactlyRule;
 }(TextRule_1.TextRule));
 exports.TextIsExactlyRule = TextIsExactlyRule;
 
 
 /***/ }),
-/* 29 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1007,7 +1145,7 @@ exports.NumberGreaterThanRule = NumberGreaterThanRule;
 
 
 /***/ }),
-/* 30 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1041,7 +1179,7 @@ exports.NumberGreaterThanOrEqualToRuleRule = NumberGreaterThanOrEqualToRuleRule;
 
 
 /***/ }),
-/* 31 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1075,7 +1213,7 @@ exports.NumberLessThanRule = NumberLessThanRule;
 
 
 /***/ }),
-/* 32 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1109,7 +1247,7 @@ exports.NumberLessThanRuleOrEqualToRule = NumberLessThanRuleOrEqualToRule;
 
 
 /***/ }),
-/* 33 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1143,7 +1281,7 @@ exports.NumberEqualToRule = NumberEqualToRule;
 
 
 /***/ }),
-/* 34 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
