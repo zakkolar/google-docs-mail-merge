@@ -4,7 +4,7 @@ import "./Sidebar.scss";
 import Vue from 'vue/dist/vue.esm';
 import {Accordion} from "../Accordion/Accordion";
 
-Vue.component('accordion', Accordion);
+Vue.use(Accordion);
 
 var app = new Vue({
     el: '#sidebar',
