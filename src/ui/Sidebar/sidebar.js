@@ -85,13 +85,13 @@ var app = new Vue({
                 vue.settings = Object.assign({},vue.settings, settings);
                 vue.loading = false;
 
-                if(vue.settings.spreadsheet.sheet == null){
+                if(vue.settings.spreadsheet.sheet === null || vue.sheetEmpty()){
                     vue.accordions.setUp = true;
                     vue.accordions.addFields = false;
                     vue.accordions.setRules = false;
                 }
                 else{
-                    vue.accordions.setUp = false;
+                    vue.accordions.setUp = true;
                     if(vue.settings.rules.length>0){
                         vue.accordions.addFields = false;
                         vue.accordions.setRules = true;
@@ -115,6 +115,9 @@ var app = new Vue({
             e.preventDefault();
             this.ruleEditor = null;
             this.ruleEditorIndex = -1;
+        },
+        sheetEmpty(){
+            return this.settings.spreadsheet.columnNames.length === 1 && this.settings.spreadsheet.columnNames[0]==='';
         },
         deleteRule(index, e){
             e.preventDefault();

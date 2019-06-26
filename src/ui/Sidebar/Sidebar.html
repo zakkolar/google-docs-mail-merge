@@ -54,7 +54,7 @@
         <p><button v-on:click="mergeURL=null">Return to merge setup</button></p>
     </div>
     <form id="main" v-if="!loading && !mergeURL">
-        <accordion title="Set up Sheet" v-bind:initial-show="accordions.setUp">
+        <accordion title="Set up Sheet" id="setUp" v-bind:initial-show="accordions.setUp">
             <button class="pickSpreadsheet" v-if="!settings.spreadsheet.sheet" v-on:click="pickSpreadsheet">Choose a spreadsheet to merge</button>
             <div v-if="settings.spreadsheet.sheet">
                 <div class="block form-group">
@@ -68,12 +68,12 @@
                         </option>
                     </select></label>
                 </div>
-                <div v-if="settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='' ">
+                <div v-if="sheetEmpty()">
                     <p>This sheet seems to be empty. Add data or pick a different sheet to start merging. <a v-on:click="refresh">Click to refresh field list</a>.</p>
                 </div>
             </div>
         </accordion>
-        <accordion v-bind:initial-show="accordions.addFields" title="Add fields" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || (settings.spreadsheet.columnNames && settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='')">
+        <accordion id="addFields" v-bind:initial-show="accordions.addFields" title="Add fields" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || (settings.spreadsheet.columnNames && settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='')">
             <div class="block form-group">
                 <b>Click on a field to put it into your template</b>
                 <ul class="list-choice">
@@ -84,7 +84,7 @@
                 <p class="text-center"><a v-on:click="refresh">Refresh field list</a></p>
             </div>
         </accordion>
-        <accordion v-bind:initial-show="accordions.setRules" title="Set merge rules" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || (settings.spreadsheet.columnNames && settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='')">
+        <accordion id="setRules" v-bind:initial-show="accordions.setRules" title="Set merge rules" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || (settings.spreadsheet.columnNames && settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='')">
             <div>
                 <div>
                     <b>Merge rows:</b>
