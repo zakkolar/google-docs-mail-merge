@@ -2,6 +2,9 @@ import '../loader.css';
 import "./Sidebar.scss";
 
 import Vue from 'vue/dist/vue.esm';
+import {Accordion} from "../Accordion/Accordion";
+
+Vue.component('accordion', Accordion);
 
 var app = new Vue({
     el: '#sidebar',
@@ -29,7 +32,12 @@ var app = new Vue({
         ruleSaving: false,
         rowsSaving: false,
         rowsDirty: false,
-        mergeURL: null
+        mergeURL: null,
+        accordions:{
+            setUp: true,
+            addFields: false,
+            setRules: false
+        }
 
 
 
@@ -71,15 +79,23 @@ var app = new Vue({
             var vue = this;
             vue.loading = true;
             google.script.run.withSuccessHandler(function(settings) {
-
                 if(!settings.rules){
                     settings.rules = [];
                 }
-
                 vue.settings = Object.assign({},vue.settings, settings);
-
-
                 vue.loading = false;
+
+                if(vue.settings.spreadsheet.sheet == null){
+                    vue.accordions.setUp = true;
+                    vue.accordions.addFields = false;
+                    vue.accordions.setRules = false;
+                }
+                else{
+                    vue.accordions.setUp = false;
+                    vue.accordions.addFields = true;
+                    vue.accordions.setRules = true;
+                }
+
             }).withFailureHandler(function(err){
             this.error=err
             }).getSettings();

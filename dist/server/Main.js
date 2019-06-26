@@ -11,6 +11,9 @@ function showSpreadsheetPicker() {
 function merge() {
 }
 // @ts-ignore
+function deleteAllProperties() {
+}
+// @ts-ignore
 function addField() {
 }
 // @ts-ignore
@@ -246,7 +249,6 @@ exports.__esModule = true;
 var MergeData_1 = __webpack_require__(5);
 var RuleList_1 = __webpack_require__(6);
 function onOpen() {
-    Logger.log('hi');
     var ui = DocumentApp.getUi();
     ui.createMenu('Mail merge')
         .addItem('Start', 'showSidebar')
@@ -297,6 +299,12 @@ function deleteProperty(prop) {
     var documentProperties = PropertiesService.getDocumentProperties();
     documentProperties.deleteProperty(prop);
 }
+function deleteAllProperties() {
+    var documentProperties = PropertiesService.getDocumentProperties();
+    documentProperties.deleteAllProperties();
+}
+// @ts-ignore
+global.deleteAllProperties = deleteAllProperties;
 var PLACEHOLDER = {
     PREFIX: "{{",
     SUFFIX: "}}",
@@ -599,6 +607,9 @@ function setRules(sheet, inRules, mode) {
 global.setRules = setRules;
 function getRules(sheet) {
     var rules = JSON.parse(getProperty(rulesKey(sheet)));
+    if (rules == null) {
+        return [];
+    }
     rules = rules.filter(function (rule) {
         return getColumnNames().indexOf(rule.field) > -1;
     });
@@ -618,7 +629,7 @@ function getRulesForUi(sheet) {
     return rules;
 }
 function getSettings() {
-    var spreadsheet = null;
+    var spreadsheet = {};
     var rules = [];
     if (getSpreadsheetId() != null) {
         spreadsheet = {

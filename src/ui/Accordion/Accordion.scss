@@ -1,0 +1,66 @@
+$border-radius: 2px;
+$color: #292929;
+
+$disabled-color: lighten($color, 10%);
+
+.accordion {
+  background-color: $color;
+  margin-bottom: 4px;
+
+  &.disabled{
+    background-color: $disabled-color;
+    .header{
+      cursor:default;
+    }
+  }
+
+  &:first-of-type{
+    border-radius: $border-radius $border-radius 0 0;
+  }
+
+  &:last-of-type, &:last-of-type .body{
+    border-radius: 0 0 $border-radius $border-radius;
+  }
+}
+
+
+
+.accordion .header {
+  height: 40px;
+  line-height: 40px;
+  padding: 0 40px 0 8px;
+  position: relative;
+  color: #fff;
+  cursor: pointer;
+
+
+
+}
+
+.accordion .header-icon {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  transform: rotate(0deg);
+  transition-duration: 0.3s;
+}
+
+.accordion .body {
+  overflow: hidden;
+  background-color: #fff;
+  border: 2px solid $color;
+  border-top: 0;
+  transition: 150ms ease-out;
+}
+
+
+
+.accordion .body-inner {
+  padding: 8px;
+  overflow-wrap: break-word;
+}
+
+.accordion .header-icon.rotate {
+  transform: rotate(180deg);
+  transition-duration: 0.3s;
+}

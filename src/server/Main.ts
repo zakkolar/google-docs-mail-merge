@@ -4,7 +4,6 @@ import {Rule} from "./rules/Rule";
 import set = Reflect.set;
 
 function onOpen() {
-  Logger.log('hi');
   var ui = DocumentApp.getUi();
   ui.createMenu('Mail merge')
       .addItem('Start', 'showSidebar')
@@ -75,6 +74,13 @@ function deleteProperty(prop){
   var documentProperties = PropertiesService.getDocumentProperties();
   documentProperties.deleteProperty(prop);
 }
+
+function deleteAllProperties(){
+  var documentProperties = PropertiesService.getDocumentProperties();
+  documentProperties.deleteAllProperties();
+}
+// @ts-ignore
+global.deleteAllProperties = deleteAllProperties;
 
 var PLACEHOLDER =  {
   PREFIX: "{{",
@@ -442,6 +448,9 @@ global.setRules = setRules;
 
 function getRules(sheet){
   let rules = JSON.parse(getProperty(rulesKey(sheet)));
+  if(rules==null){
+    return [];
+  }
   rules = rules.filter((rule)=>{
     return getColumnNames().indexOf(rule.field)>-1;
   });
@@ -463,7 +472,7 @@ function getRulesForUi(sheet){
 }
 
 function getSettings(){
-  var spreadsheet = null;
+  var spreadsheet = {};
   let rules = [];
   if(getSpreadsheetId()!=null){
     spreadsheet = {

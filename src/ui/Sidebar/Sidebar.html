@@ -54,34 +54,38 @@
         <p><button v-on:click="mergeURL=null">Return to merge setup</button></p>
     </div>
     <form id="main" v-if="!loading && !mergeURL">
-        <button class="pickSpreadsheet" v-if="!settings.spreadsheet" v-on:click="pickSpreadsheet">Choose a spreadsheet to merge</button>
-        <div v-if="settings.spreadsheet">
-            <div class="block form-group">
-                <p><b>Spreadsheet:</b> <a v-bind:href="settings.spreadsheet.url" target="_blank">{{settings.spreadsheet.name}}</a> (<a v-on:click="pickSpreadsheet">choose another</a>)</p>
-
-            </div>
-            <div class="block form-group">
-                <label for="sheet"><b>Sheet:</b> <select v-on:change="saveSheet" id="sheet" v-model="settings.spreadsheet.sheet">
-                    <option v-for="sheet in settings.spreadsheet.sheets" v-bind:value="sheet">
-                        {{sheet}}
-                    </option>
-                </select></label>
-
-            </div>
-            <div v-if="settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='' ">
-                <p>This sheet seems to be empty. Add data or pick a different sheet to start merging. <a v-on:click="refresh">Click to refresh field list</a>.</p>
-            </div>
-            <div v-else>
+        <accordion title="Set up Sheet" v-bind:show="accordions.setUp">
+            <button class="pickSpreadsheet" v-if="!settings.spreadsheet.sheet" v-on:click="pickSpreadsheet">Choose a spreadsheet to merge</button>
+            <div v-if="settings.spreadsheet.sheet">
                 <div class="block form-group">
-                    <b>Click on a field to put it into your template</b>
-                    <ul class="list-choice">
-                        <li class="choice-item" v-for="placeholder in placeholders">
-                            <a href="#"  v-on:click="addField($event, placeholder)">{{placeholder}}</a>
-                        </li>
-                    </ul>
-                    <p class="text-center"><a v-on:click="refresh">Refresh field list</a></p>
-                </div>
+                    <p><b>Spreadsheet:</b> <a v-bind:href="settings.spreadsheet.url" target="_blank">{{settings.spreadsheet.name}}</a> (<a v-on:click="pickSpreadsheet">choose another</a>)</p>
 
+                </div>
+                <div class="block form-group">
+                    <label for="sheet"><b>Sheet:</b> <select v-on:change="saveSheet" id="sheet" v-model="settings.spreadsheet.sheet">
+                        <option v-for="sheet in settings.spreadsheet.sheets" v-bind:value="sheet">
+                            {{sheet}}
+                        </option>
+                    </select></label>
+                </div>
+                <div v-if="settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='' ">
+                    <p>This sheet seems to be empty. Add data or pick a different sheet to start merging. <a v-on:click="refresh">Click to refresh field list</a>.</p>
+                </div>
+            </div>
+        </accordion>
+        <accordion v-bind:show="accordions.addFields" title="Add fields" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || (settings.spreadsheet.columnNames && settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='')">
+            <div class="block form-group">
+                <b>Click on a field to put it into your template</b>
+                <ul class="list-choice">
+                    <li class="choice-item" v-for="placeholder in placeholders">
+                        <a href="#"  v-on:click="addField($event, placeholder)">{{placeholder}}</a>
+                    </li>
+                </ul>
+                <p class="text-center"><a v-on:click="refresh">Refresh field list</a></p>
+            </div>
+        </accordion>
+        <accordion v-bind:show="accordions.setRules" title="Set merge rules" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || (settings.spreadsheet.columnNames && settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='')">
+            <div>
                 <div>
                     <b>Merge rows:</b>
                     <input type="number" v-model="settings.spreadsheet.startRow" v-on:change="rowsDirty = true" v-on:keydown="rowsDirty = true" size="3">
@@ -108,7 +112,6 @@
                 <button v-if="ruleEditor" v-on:click="clearRuleEditor">Cancel</button>
                 <button v-if="!ruleEditor" v-on:click="newRule">New rule</button>
                 <span v-if="ruleSaving">Saving...</span>
-
                 <ul>
                     <li v-for="(rule, index) in settings.rules">
                         <a href="#" v-on:click="editRule(index, $event)">edit</a>
@@ -116,14 +119,10 @@
                         <span v-bind:class="{editorFocus: index===ruleEditorIndex}">{{rule.field}} {{rule.type.label}} <span v-if="rule.type.showComparison">{{rule.value}}</span></span>
                     </li>
                 </ul>
-
-
-
             </div>
-        </div>
-        <button class="blue" v-bind:disabled="disableMergeButton" v-on:click="runMerge">Run merge</button>
+        </accordion>
+        <button class="blue block" v-bind:disabled="disableMergeButton" v-if="settings.spreadsheet.sheet" v-on:click="runMerge">Run merge</button>
     </form>
-
     <div class="error" v-if="error">
         <i class="fas fa-times" style="cursor: pointer" v-on:click="error=null"></i>
         {{error}}
