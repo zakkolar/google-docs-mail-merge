@@ -74,13 +74,18 @@ ul.list-choice {
         &:hover + li.choice-item{
             border-top: 1px solid #c6c6c6;
         }
-        a{
+        button{
             padding: 4px 12px;
             display: block;
             text-decoration:none;
             color: #333;
             font-weight: bold;
             text-align:center;
+            width: 100%;
+            background: transparent;
+            border-style:none;
+            line-height: initial;
+
         }
     }
     li.choice-item:first-of-type{

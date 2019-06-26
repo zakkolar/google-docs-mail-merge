@@ -78,7 +78,7 @@
                 <b>Click on a field to put it into your template</b>
                 <ul class="list-choice">
                     <li class="choice-item" v-for="placeholder in placeholders">
-                        <a href="#"  v-on:click="addField($event, placeholder)">{{placeholder}}</a>
+                        <button  v-on:click="addField($event, placeholder)">{{placeholder}}</button>
                     </li>
                 </ul>
                 <p class="text-center"><a v-on:click="refresh">Refresh field list</a></p>
