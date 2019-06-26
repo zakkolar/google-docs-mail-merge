@@ -6,9 +6,12 @@ export const Accordion = {
         disabled:{
             default: false
         },
-        show:{
+        initialShow:{
             default: false
-        }
+        },
+    },
+    created(){
+        this.show = this.initialShow;
     },
     template: `<div class="accordion" v-bind:class="{disabled: disabled}">
     <div class="header" v-on:click="toggle">
@@ -26,7 +29,7 @@ export const Accordion = {
 
     data() {
         return {
-
+            show: true
         };
     },
     methods: {

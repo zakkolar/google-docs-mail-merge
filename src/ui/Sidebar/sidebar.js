@@ -92,8 +92,14 @@ var app = new Vue({
                 }
                 else{
                     vue.accordions.setUp = false;
-                    vue.accordions.addFields = true;
-                    vue.accordions.setRules = true;
+                    if(vue.settings.rules.length>0){
+                        vue.accordions.addFields = false;
+                        vue.accordions.setRules = true;
+                    }
+                    else {
+                        vue.accordions.addFields = true;
+                        vue.accordions.setRules = false;
+                    }
                 }
 
             }).withFailureHandler(function(err){
