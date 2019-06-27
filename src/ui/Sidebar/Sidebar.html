@@ -87,16 +87,14 @@
         <accordion id="setRules" v-bind:initial-show="accordions.setRules" title="Set merge rules" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || sheetEmpty()">
             <div v-if="settings.spreadsheet && settings.spreadsheet.columnNames && !sheetEmpty()">
                 <div>
-                    <b>Merge rows:</b>
+                    Merge rows
                     <input type="number" class="narrow" v-model="settings.spreadsheet.startRow" v-on:change="rowsDirty = true" v-on:keydown="rowsDirty = true" size="3">
                     to
                     <input size="3" class="narrow" v-model="settings.spreadsheet.endRow" v-on:keydown="rowsDirty = true" v-on:change="rowsDirty = true" type="number">
                     <span v-if="rowsSaving">Saving...</span>
                     <a  href='#' v-if="rowsDirty && !rowsSaving" v-on:click="saveMergeRows">Save</a>
                 </div>
-
-                <b>Merge conditions</b>
-                <p v-if="settings.rules.length>0">Merge rows if <select v-on:change="storeRules" v-model="settings.ruleMode"><option v-bind:value="mode" v-for="mode in settings.ruleModeList">{{mode}}</option></select> of the following are true</p>
+                <p>Merge rows if <select v-on:change="storeRules" v-model="settings.ruleMode"><option v-bind:value="mode" v-for="mode in settings.ruleModeList">{{mode}}</option></select> of the following are true:</p>
 
                 <ul class="rule-list">
                     <li class="rule" v-for="(rule, index) in settings.rules" v-bind:class="{editorFocus: index===ruleEditorIndex}">
@@ -105,7 +103,7 @@
                                 <i title="Edit this rule" class="fas fa-edit" aria-hidden="true"></i>
                                 <span class="sr-only">Edit this rule</span>
                             </a>
-                            <a href="#" class="icon" v-on:click="deleteRule(index, $event)">
+                            <a href="#" class="icon" v-on:click.stop="deleteRule(index, $event)">
                                 <i class="fas fa-trash" aria-hidden="true" title="Delete this rule"></i>
                                 <span class="sr-only">Delete this rule</span>
                             </a>
@@ -127,7 +125,7 @@
                         </div>
 
                     </li>
-                    <li class="rule text-center" v-if="!ruleEditor">
+                    <li class="rule text-center" v-on:click="newRule" v-if="!ruleEditor">
                         <a href="#" v-on:click="newRule">New rule</a>
                     </li>
                 </ul>
