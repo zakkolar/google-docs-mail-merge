@@ -73,8 +73,8 @@
                 </div>
             </div>
         </accordion>
-        <accordion id="addFields" v-bind:initial-show="accordions.addFields" title="Add fields" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || (settings.spreadsheet.columnNames && settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='')">
-            <div class="block form-group">
+        <accordion id="addFields" v-bind:initial-show="accordions.addFields" title="Add fields" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || sheetEmpty()">
+            <div class="block form-group" v-if="settings.spreadsheet && settings.spreadsheet.columnNames && !sheetEmpty()">
                 <b>Click on a field to put it into your template</b>
                 <ul class="list-choice">
                     <li class="choice-item" v-for="placeholder in placeholders">
@@ -84,20 +84,55 @@
                 <p class="text-center"><a v-on:click="refresh">Refresh field list</a></p>
             </div>
         </accordion>
-        <accordion id="setRules" v-bind:initial-show="accordions.setRules" title="Set merge rules" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || (settings.spreadsheet.columnNames && settings.spreadsheet.columnNames.length == 1 && settings.spreadsheet.columnNames[0]=='')">
-            <div>
+        <accordion id="setRules" v-bind:initial-show="accordions.setRules" title="Set merge rules" :disabled="!settings.spreadsheet || !settings.spreadsheet.columnNames || sheetEmpty()">
+            <div v-if="settings.spreadsheet && settings.spreadsheet.columnNames && !sheetEmpty()">
                 <div>
                     <b>Merge rows:</b>
                     <input type="number" class="narrow" v-model="settings.spreadsheet.startRow" v-on:change="rowsDirty = true" v-on:keydown="rowsDirty = true" size="3">
                     to
                     <input size="3" class="narrow" v-model="settings.spreadsheet.endRow" v-on:keydown="rowsDirty = true" v-on:change="rowsDirty = true" type="number">
                     <span v-if="rowsSaving">Saving...</span>
-                    <button v-if="rowsDirty && !rowsSaving" v-on:click="saveMergeRows">Save</button>
+                    <a  href='#' v-if="rowsDirty && !rowsSaving" v-on:click="saveMergeRows">Save</a>
                 </div>
 
                 <b>Merge conditions</b>
-                <p>Merge rows if <select v-on:change="storeRules" v-model="settings.ruleMode"><option v-bind:value="mode" v-for="mode in settings.ruleModeList">{{mode}}</option></select> of the following are true</p>
-                <div v-if="ruleEditor">
+                <p v-if="settings.rules.length>0">Merge rows if <select v-on:change="storeRules" v-model="settings.ruleMode"><option v-bind:value="mode" v-for="mode in settings.ruleModeList">{{mode}}</option></select> of the following are true</p>
+
+                <ul class="rule-list">
+                    <li class="rule" v-for="(rule, index) in settings.rules" v-bind:class="{editorFocus: index===ruleEditorIndex}">
+                        <div class="ruleLabel" v-on:click.stop="editRule(index, $event)">
+                            <a href="#" class="icon" v-on:click="editRule(index, $event)">
+                                <i title="Edit this rule" class="fas fa-edit" aria-hidden="true"></i>
+                                <span class="sr-only">Edit this rule</span>
+                            </a>
+                            <a href="#" class="icon" v-on:click="deleteRule(index, $event)">
+                                <i class="fas fa-trash" aria-hidden="true" title="Delete this rule"></i>
+                                <span class="sr-only">Delete this rule</span>
+                            </a>
+                            <span>{{rule.field}} {{rule.type.label}} {{rule.type.showComparison? rule.value : ''}}</span>
+                        </div>
+                        <div class="ruleEditor" v-if="ruleEditorIndex === index">
+                            <select v-model="ruleEditor.field">
+                                <option v-for="name in settings.spreadsheet.columnNames" v-bind:value="name">{{name}}</option>
+                            </select>
+                            <select v-model="ruleEditor.type">
+                                <optgroup v-for="(ruleType, type) in groupedRuleList" v-bind:label="type">
+                                    <option v-for="rule in ruleType" v-bind:value="rule">{{rule.label}}</option>
+                                </optgroup>
+                            </select>
+                            <input type="text" v-if="ruleEditor.type.showComparison" v-model="ruleEditor.value">
+                            <button v-on:click.stop="saveRule">Save {{ruleEditorIndex<0 ? 'new':''}} rule</button>
+                            <button v-on:click.stop="clearRuleEditor">Cancel</button>
+                            <span v-if="ruleSaving">Saving...</span>
+                        </div>
+
+                    </li>
+                    <li class="rule text-center" v-if="!ruleEditor">
+                        <a href="#" v-on:click="newRule">New rule</a>
+                    </li>
+                </ul>
+                <div v-if="ruleEditorIndex<0 && ruleEditor" class="ruleEditor">
+                    {{ruleEditorIndex<0 ? 'New':'Edit'}} Rule
                     <select v-model="ruleEditor.field">
                         <option v-for="name in settings.spreadsheet.columnNames" v-bind:value="name">{{name}}</option>
                     </select>
@@ -107,18 +142,10 @@
                         </optgroup>
                     </select>
                     <input type="text" v-if="ruleEditor.type.showComparison" v-model="ruleEditor.value">
+                    <button v-on:click="saveRule">Save {{ruleEditorIndex<0 ? 'new':''}} rule</button>
+                    <button v-on:click="clearRuleEditor">Cancel</button>
+                    <span v-if="ruleSaving">Saving...</span>
                 </div>
-                <button v-if="ruleEditor" v-on:click="saveRule">Save <span v-if="ruleEditorIndex<0">new</span> rule</button>
-                <button v-if="ruleEditor" v-on:click="clearRuleEditor">Cancel</button>
-                <button v-if="!ruleEditor" v-on:click="newRule">New rule</button>
-                <span v-if="ruleSaving">Saving...</span>
-                <ul>
-                    <li v-for="(rule, index) in settings.rules">
-                        <a href="#" v-on:click="editRule(index, $event)">edit</a>
-                        <a href="#" v-on:click="deleteRule(index, $event)">delete</a>
-                        <span v-bind:class="{editorFocus: index===ruleEditorIndex}">{{rule.field}} {{rule.type.label}} <span v-if="rule.type.showComparison">{{rule.value}}</span></span>
-                    </li>
-                </ul>
             </div>
         </accordion>
         <button class="blue block" v-bind:disabled="disableMergeButton" v-if="settings.spreadsheet.sheet" v-on:click="runMerge">Run merge</button>

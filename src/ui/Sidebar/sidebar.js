@@ -13,15 +13,15 @@ var app = new Vue({
         settings: {
             spreadsheet: {
                 name: null,
-                sheets: [null],
+                sheets: [],
                 sheet: null,
                 url: null,
-                columnNames: [null],
+                columnNames: [],
                 startRow: 0,
                 endRow: 0,
             },
-            defaultPlaceholders: [null],
-            ruleList: [null],
+            defaultPlaceholders: [],
+            ruleList: [],
             ruleModeList: [],
             ruleMode: null,
             rules: []
@@ -82,21 +82,24 @@ var app = new Vue({
                 if(!settings.rules){
                     settings.rules = [];
                 }
+
                 vue.settings = Object.assign({},vue.settings, settings);
                 vue.loading = false;
 
-                if(vue.settings.spreadsheet.sheet === null || vue.sheetEmpty()){
+                if(!vue.settings.spreadsheet.sheet || vue.sheetEmpty()){
                     vue.accordions.setUp = true;
                     vue.accordions.addFields = false;
                     vue.accordions.setRules = false;
                 }
                 else{
-                    vue.accordions.setUp = true;
-                    if(vue.settings.rules.length>0){
+
+                    if(vue.settings.rules && vue.settings.rules.length>0){
+                        vue.accordions.setUp = false;
                         vue.accordions.addFields = false;
                         vue.accordions.setRules = true;
                     }
                     else {
+                        vue.accordions.setUp = true;
                         vue.accordions.addFields = true;
                         vue.accordions.setRules = false;
                     }
@@ -117,7 +120,7 @@ var app = new Vue({
             this.ruleEditorIndex = -1;
         },
         sheetEmpty(){
-            return this.settings.spreadsheet.columnNames.length === 1 && this.settings.spreadsheet.columnNames[0]==='';
+            return this.settings.spreadsheet.columnNames && this.settings.spreadsheet.columnNames.length === 1 && this.settings.spreadsheet.columnNames[0]==='';
         },
         deleteRule(index, e){
             e.preventDefault();
@@ -146,6 +149,7 @@ var app = new Vue({
         },
         editRule(index, e){
             e.preventDefault();
+            e.stopPropagation();
             this.ruleEditorIndex = index;
             this.ruleEditor = Object.assign({},this.ruleEditor, this.settings.rules[index]);
 

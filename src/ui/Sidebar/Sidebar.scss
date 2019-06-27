@@ -100,10 +100,57 @@ ul.list-choice {
 }
 
 
-.editorFocus{
-    text-decoration: underline;
-}
 
 input.narrow{
     width: 50px;
+}
+
+.ruleEditor{
+    margin-top: 10px;
+    input, select{
+        width:100%;
+        margin-bottom:4px;
+    }
+}
+
+a.icon, a.icon:hover{
+    text-decoration: none;
+}
+
+ul.rule-list{
+    margin:0;
+    padding:0;
+    li.rule{
+        list-style:none;
+        margin:0;
+        padding:5px;
+        // border: solid 1px #444;
+        margin-bottom:2px;
+
+        cursor:default;
+        background-color: #DDD;
+        &:hover{
+            background-color:#EEE;
+        }
+        &.editorFocus{
+            background-color: #f9f4b8;
+        }
+    }
+
+}
+
+a.icon:hover{
+    text-decoration:none;
+}
+
+a.icon.edit{
+    color: #ce6e00;
+}
+
+a.icon.delete{
+    color: #c12626
+}
+
+a.newRule{
+    display:block;
 }
