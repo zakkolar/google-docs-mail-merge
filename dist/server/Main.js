@@ -703,6 +703,9 @@ function addMergeData(doc) {
         addTemplate(body, bodyCopy);
     }
     var data = mergeData.next();
+    if (!data) {
+        return;
+    }
     var searchPattern = "\{\{.[^\}]*\}\}";
     while (body.findText(searchPattern)) {
         var range = body.findText(searchPattern);

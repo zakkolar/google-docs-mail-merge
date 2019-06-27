@@ -566,6 +566,10 @@ function addMergeData(doc){
 
   let data = mergeData.next();
 
+  if(!data){
+    return;
+  }
+
   const searchPattern = "\{\{.[^\}]*\}\}";
   while(body.findText(searchPattern)){
     const range = body.findText(searchPattern);
