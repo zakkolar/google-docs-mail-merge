@@ -111,7 +111,7 @@
                             </a>
                             <span>{{rule.field}} {{rule.type.label}} {{rule.type.showComparison? rule.value : ''}}</span>
                         </div>
-                        <div class="ruleEditor" v-if="ruleEditorIndex === index">
+                        <div class="ruleEditor" v-if="ruleEditor && ruleEditorIndex === index">
                             <select v-model="ruleEditor.field">
                                 <option v-for="name in settings.spreadsheet.columnNames" v-bind:value="name">{{name}}</option>
                             </select>
