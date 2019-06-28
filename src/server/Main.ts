@@ -180,6 +180,7 @@ function getSpreadsheetId(){
 
 function setSpreadsheetId(id){
   setProperty("SPREADSHEET_ID",id);
+  clearRows();
   clearSheetInfo();
 }
 // @ts-ignore
@@ -206,6 +207,7 @@ function getSheetName(){
 }
 
 function setSheetName(name){
+  clearRows();
   return setProperty("SHEET_NAME", name);
 }
 // @ts-ignore
@@ -377,6 +379,11 @@ function setRows(start, end){
 
 // @ts-ignore
 global.setRows = setRows;
+
+function clearRows(){
+  deleteProperty("START_ROW");
+  deleteProperty("END_ROW");
+}
 
 function getRule(id){
 
