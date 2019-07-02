@@ -54,7 +54,7 @@
         <p><button v-on:click="mergeURL=null">Return to merge setup</button></p>
     </div>
     <form id="main" v-if="!loading && !mergeURL">
-        <accordion title="Set up Sheet" id="setUp" v-bind:initial-show="accordions.setUp">
+        <accordion title="Pick spreadsheet" id="pickSpreadsheet" v-bind:initial-show="accordions.setUp">
             <button class="pickSpreadsheet" v-if="!settings.spreadsheet.sheet" v-on:click="pickSpreadsheet">Choose a spreadsheet to merge</button>
             <div v-if="settings.spreadsheet.sheet">
                 <div class="block form-group">
