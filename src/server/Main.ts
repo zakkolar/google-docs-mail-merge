@@ -192,7 +192,16 @@ function clearSheetInfo(){
 
 function getSpreadsheet(){
   var sheetsID = getSpreadsheetId();
-  return SpreadsheetApp.openById(sheetsID);
+
+  // try/catch in case sheet has been deleted or no longer have access to it
+  try{
+    const spreadsheet = SpreadsheetApp.openById(sheetsID);
+    return spreadsheet;
+  }
+  catch(e){
+    return null;
+  }
+
 }
 
 function getSheetName(){
@@ -296,8 +305,6 @@ function getMergeValues(){
 
   mergeValues = mergeValues.filter((row)=>{
     const include = testRules(storedRules, row);
-    Logger.log(row);
-    Logger.log(testRules(storedRules, row));
     return include;
   });
 
@@ -468,7 +475,6 @@ function getRulesForUi(sheet){
   const rulesIn = getRules(sheet);
   const rules = [];
   rulesIn.forEach((rule)=>{
-    Logger.log(rule);
     rules.push({
       field: rule.field,
       type: transformRuleToUi(getRule(rule.id),rule.id),
@@ -481,7 +487,7 @@ function getRulesForUi(sheet){
 function getSettings(){
   var spreadsheet = {};
   let rules = [];
-  if(getSpreadsheetId()!=null){
+  if(getSpreadsheetId()!=null && getSpreadsheet() != null){
     spreadsheet = {
       name: getSpreadsheet().getName(),
       sheets: getSheets(),
