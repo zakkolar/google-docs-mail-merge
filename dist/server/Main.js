@@ -258,7 +258,7 @@ function onOpen() {
 global.onOpen = onOpen;
 function showSidebar() {
     var ui = HtmlService.createTemplateFromFile('ui/Sidebar').evaluate()
-        .setTitle('Mail Merge');
+        .setTitle('Mail Merge for Print');
     DocumentApp.getUi().showSidebar(ui);
 }
 // @ts-ignore
