@@ -756,8 +756,12 @@ function addMergeData(doc) {
     }
 }
 function replaceTextInEl(el, start, end, replace) {
+    var attrs = el.getAttributes(start);
+    var parent = el.getParent();
     el.deleteText(start, end);
     el.insertText(start, replace);
+    var replaceText = replace + "";
+    el.setAttributes(start, start + replaceText.length - 1, attrs);
 }
 function addTemplate(body, template) {
     // @ts-ignore

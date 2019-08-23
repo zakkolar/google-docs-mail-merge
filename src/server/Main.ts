@@ -625,8 +625,13 @@ function addMergeData(doc){
 }
 
 function replaceTextInEl(el, start, end, replace){
+  const attrs = el.getAttributes(start);
+  const parent = el.getParent();
+
   el.deleteText(start,end);
   el.insertText(start, replace);
+  const replaceText = replace+"";
+  el.setAttributes(start, start + replaceText.length - 1, attrs);
 }
 
 
