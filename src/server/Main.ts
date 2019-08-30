@@ -631,7 +631,10 @@ function replaceTextInEl(el, start, end, replace){
   el.deleteText(start,end);
   el.insertText(start, replace);
   const replaceText = replace+"";
-  el.setAttributes(start, start + replaceText.length - 1, attrs);
+  if(replaceText.length>0){
+    el.setAttributes(start, start + replaceText.length - 1, attrs);
+  }
+
 }
 
 
