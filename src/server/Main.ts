@@ -33,7 +33,13 @@ function showSpreadsheetPicker(){
 global.showSpreadsheetPicker = showSpreadsheetPicker;
 
 
-function merge(){
+function merge(opts){
+  Logger.log('merging');
+  Logger.log(opts);
+  if(opts.start && opts.end){
+    Logger.log('saving rows');
+    setRows(opts.start, opts.end);
+  }
 
   var templateDoc = DocumentApp.getActiveDocument();
 

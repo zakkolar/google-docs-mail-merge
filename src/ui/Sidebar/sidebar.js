@@ -224,6 +224,13 @@ var app = new Vue({
             e.preventDefault();
             const vue = this;
             vue.loading = true;
+            const mergeSettings = {
+
+                start: vue.settings.spreadsheet.startRow,
+                    end: vue.settings.spreadsheet.endRow
+
+            }
+
             google.script.run.withFailureHandler(function(err){
                 vue.error = err;
                 vue.loading = false;
@@ -234,7 +241,7 @@ var app = new Vue({
                 vue.loading = false;
 
 
-            }).merge();
+            }).merge(mergeSettings);
         }
     },
     created(){

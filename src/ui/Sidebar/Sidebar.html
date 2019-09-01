@@ -88,11 +88,10 @@
             <div v-if="settings.spreadsheet && settings.spreadsheet.columnNames && !sheetEmpty()">
                 <div>
                     Merge rows
-                    <input type="number" class="narrow" v-model="settings.spreadsheet.startRow" v-on:change="rowsDirty = true" v-on:keydown="rowsDirty = true" size="3">
+                    <input type="number" class="narrow" v-model="settings.spreadsheet.startRow" size="3">
                     to
-                    <input size="3" class="narrow" v-model="settings.spreadsheet.endRow" v-on:keydown="rowsDirty = true" v-on:change="rowsDirty = true" type="number">
-                    <span v-if="rowsSaving">Saving...</span>
-                    <a  href='#' v-if="rowsDirty && !rowsSaving" v-on:click="saveMergeRows">Save</a>
+                    <input size="3" class="narrow" v-model="settings.spreadsheet.endRow" type="number">
+
                 </div>
                 <p>Merge rows if <select v-on:change="storeRules" v-model="settings.ruleMode"><option v-bind:value="mode" v-for="mode in settings.ruleModeList">{{mode}}</option></select> of the following are true:</p>
 
