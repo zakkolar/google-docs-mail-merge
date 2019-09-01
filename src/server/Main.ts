@@ -128,8 +128,21 @@ function addField(field){
   var doc = DocumentApp.getActiveDocument();
   var cursor = doc.getCursor();
   var selection = doc.getSelection();
+
   if (cursor) {
-    var newText = cursor.insertText(field);
+    const surrounding = cursor.getSurroundingText();
+    const cursorPosition = cursor.getOffset();
+    const attrs = surrounding.getAttributes();
+    const newText = cursor.insertText(field);
+
+    Logger.log(surrounding.getText());
+    Logger.log(cursorPosition);
+    Logger.log(newText.getText());
+
+    if(field.length>0){
+      surrounding.setAttributes(cursorPosition, cursorPosition + field.length - 1, attrs);
+    }
+
     // @ts-ignore
     var position = doc.newPosition(newText, field.length);
     doc.setCursor(position);

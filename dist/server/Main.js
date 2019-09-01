@@ -341,9 +341,18 @@ function addField(field) {
     var cursor = doc.getCursor();
     var selection = doc.getSelection();
     if (cursor) {
-        var newText = cursor.insertText(field);
+        var surrounding = cursor.getSurroundingText();
+        var cursorPosition = cursor.getOffset();
+        var attrs = surrounding.getAttributes();
+        var newText_1 = cursor.insertText(field);
+        Logger.log(surrounding.getText());
+        Logger.log(cursorPosition);
+        Logger.log(newText_1.getText());
+        if (field.length > 0) {
+            surrounding.setAttributes(cursorPosition, cursorPosition + field.length - 1, attrs);
+        }
         // @ts-ignore
-        var position = doc.newPosition(newText, field.length);
+        var position = doc.newPosition(newText_1, field.length);
         doc.setCursor(position);
     }
     else if (selection) {
