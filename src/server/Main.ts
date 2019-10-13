@@ -225,8 +225,8 @@ function getSpreadsheet(){
 
 function getSheetName(){
   var sheetName = getProperty("SHEET_NAME");
-  if(!sheetName){
-    var spreadsheet = getSpreadsheet();
+  var spreadsheet = getSpreadsheet();
+  if(!sheetName || spreadsheet.getSheetByName(sheetName)==null){
     if(spreadsheet){
       sheetName = spreadsheet.getSheets()[0].getName();
     }
