@@ -7,6 +7,7 @@ import {TextStartsWithRule} from "./TextStartsWithRule";
 import {TextEndsWithRule} from "./TextEndsWithRule";
 import {TextContainsRule} from "./TextContainsRule";
 import {TextDoesNotContainRule} from "./TextDoesNotContainRule";
+import {TextIsNotRule} from "./TextIsNotRule";
 
 describe('Text is exactly', () => {
 
@@ -23,6 +24,25 @@ describe('Text is exactly', () => {
     it('should not match "Zak" with null', () => {
         const TextIsExactly = new TextIsExactlyRule();
         expect(TextIsExactly.test("Zak", null)).to.equal(false);
+    });
+
+});
+
+describe('Text is not', () => {
+
+    it('should not say "Zak" is not "Zak"', () => {
+        const TestIsNot = new TextIsNotRule();
+        expect(TestIsNot.test("Zak", "Zak")).to.equal(false);
+    });
+
+    it('should say "Zak" is not "zak"', () => {
+        const TestIsNot = new TextIsNotRule();
+        expect(TestIsNot.test("Zak", "zak")).to.equal(true);
+    });
+
+    it('should say "Zak" is not null', () => {
+        const TestIsNot = new TextIsNotRule();
+        expect(TestIsNot.test("Zak", null)).to.equal(true);
     });
 
 });

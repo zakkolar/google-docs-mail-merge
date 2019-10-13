@@ -425,8 +425,8 @@ function getSpreadsheet() {
 }
 function getSheetName() {
     var sheetName = getProperty("SHEET_NAME");
-    if (!sheetName) {
-        var spreadsheet = getSpreadsheet();
+    var spreadsheet = getSpreadsheet();
+    if (!sheetName || spreadsheet.getSheetByName(sheetName) == null) {
         if (spreadsheet) {
             sheetName = spreadsheet.getSheets()[0].getName();
         }
@@ -886,6 +886,10 @@ var NumberLessThanRule_1 = __webpack_require__(16);
 var NumberLessThanRuleOrEqualToRule_1 = __webpack_require__(17);
 var NumberEqualToRule_1 = __webpack_require__(18);
 var NumberNotEqualToRule_1 = __webpack_require__(19);
+var DateIsRule_1 = __webpack_require__(21);
+var DateIsBeforeRule_1 = __webpack_require__(22);
+var DateIsAfterRule_1 = __webpack_require__(23);
+var TextIsNotRule_1 = __webpack_require__(24);
 exports.RuleList = {
     isEmpty: new TextIsEmptyRule_1.TextIsEmptyRule(),
     isNotEmpty: new TextIsNotEmptyRule_1.TextIsNotEmptyRule(),
@@ -894,12 +898,16 @@ exports.RuleList = {
     textStartsWith: new TextStartsWithRule_1.TextStartsWithRule(),
     textEndsWith: new TextEndsWithRule_1.TextEndsWithRule(),
     textIsExactly: new TextIsExactlyRule_1.TextIsExactlyRule(),
+    textIsNot: new TextIsNotRule_1.TextIsNotRule(),
     greaterThan: new NumberGreaterThanRule_1.NumberGreaterThanRule(),
     greaterThanOrEqualTo: new NumberGreaterThanOrEqualToRule_1.NumberGreaterThanOrEqualToRuleRule(),
     lessThan: new NumberLessThanRule_1.NumberLessThanRule(),
     lessThanOrEqualTo: new NumberLessThanRuleOrEqualToRule_1.NumberLessThanRuleOrEqualToRule(),
     equalTo: new NumberEqualToRule_1.NumberEqualToRule(),
     notEqualTo: new NumberNotEqualToRule_1.NumberNotEqualToRule(),
+    dateIs: new DateIsRule_1.DateIsRule(),
+    dateIsBefore: new DateIsBeforeRule_1.DateIsBeforeRule(),
+    dateIsAfter: new DateIsAfterRule_1.DateIsAfterRule(),
 };
 
 
@@ -1357,6 +1365,181 @@ var NumberNotEqualToRule = /** @class */ (function (_super) {
     return NumberNotEqualToRule;
 }(NumberRule_1.NumberRule));
 exports.NumberNotEqualToRule = NumberNotEqualToRule;
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Rule_1 = __webpack_require__(2);
+var DateRule = /** @class */ (function (_super) {
+    __extends(DateRule, _super);
+    function DateRule(label) {
+        return _super.call(this, Rule_1.FIELD_TYPE.Date, label) || this;
+    }
+    return DateRule;
+}(Rule_1.Rule));
+exports.DateRule = DateRule;
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var DateRule_1 = __webpack_require__(20);
+var DateIsRule = /** @class */ (function (_super) {
+    __extends(DateIsRule, _super);
+    function DateIsRule() {
+        return _super.call(this, "is date") || this;
+    }
+    DateIsRule.prototype.rule = function (mergeField, comparison) {
+        return mergeField.getTime() === comparison.getTime();
+    };
+    return DateIsRule;
+}(DateRule_1.DateRule));
+exports.DateIsRule = DateIsRule;
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var DateRule_1 = __webpack_require__(20);
+var DateIsBeforeRule = /** @class */ (function (_super) {
+    __extends(DateIsBeforeRule, _super);
+    function DateIsBeforeRule() {
+        return _super.call(this, "is before") || this;
+    }
+    DateIsBeforeRule.prototype.rule = function (mergeField, comparison) {
+        return mergeField.getTime() < comparison.getTime();
+    };
+    return DateIsBeforeRule;
+}(DateRule_1.DateRule));
+exports.DateIsBeforeRule = DateIsBeforeRule;
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var DateRule_1 = __webpack_require__(20);
+var DateIsAfterRule = /** @class */ (function (_super) {
+    __extends(DateIsAfterRule, _super);
+    function DateIsAfterRule() {
+        return _super.call(this, "is after") || this;
+    }
+    DateIsAfterRule.prototype.rule = function (mergeField, comparison) {
+        return mergeField.getTime() > comparison.getTime();
+    };
+    return DateIsAfterRule;
+}(DateRule_1.DateRule));
+exports.DateIsAfterRule = DateIsAfterRule;
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var TextRule_1 = __webpack_require__(0);
+var TextIsNotRule = /** @class */ (function (_super) {
+    __extends(TextIsNotRule, _super);
+    function TextIsNotRule() {
+        return _super.call(this, "is not") || this;
+    }
+    TextIsNotRule.prototype.rule = function (mergeField, comparison) {
+        return mergeField !== comparison;
+    };
+    TextIsNotRule.prototype.formatField = function (field) {
+        field = _super.prototype.formatField.call(this, field).toString();
+        var lower = field.toLowerCase();
+        if (lower === "true" || lower === "false") {
+            return lower;
+        }
+        return field;
+    };
+    return TextIsNotRule;
+}(TextRule_1.TextRule));
+exports.TextIsNotRule = TextIsNotRule;
 
 
 /***/ })

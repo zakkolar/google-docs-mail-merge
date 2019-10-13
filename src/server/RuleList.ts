@@ -14,6 +14,7 @@ import {NumberNotEqualToRule} from "./rules/NumberNotEqualToRule";
 import {DateIsRule} from "./rules/DateIsRule";
 import {DateIsBeforeRule} from "./rules/DateIsBeforeRule";
 import {DateIsAfterRule} from "./rules/DateIsAfterRule";
+import {TextIsNotRule} from "./rules/TextIsNotRule";
 
 export const RuleList = {
        isEmpty: new TextIsEmptyRule(),
@@ -23,14 +24,15 @@ export const RuleList = {
         textStartsWith: new TextStartsWithRule(),
         textEndsWith: new TextEndsWithRule(),
         textIsExactly: new TextIsExactlyRule(),
+        textIsNot: new TextIsNotRule(),
         greaterThan: new NumberGreaterThanRule(),
         greaterThanOrEqualTo: new NumberGreaterThanOrEqualToRuleRule(),
         lessThan: new NumberLessThanRule(),
         lessThanOrEqualTo: new NumberLessThanRuleOrEqualToRule(),
         equalTo: new NumberEqualToRule(),
         notEqualTo: new NumberNotEqualToRule(),
-        // dateIs: new DateIsRule(),
-        // dateIsBefore: new DateIsBeforeRule(),
-        // dateIsAfter: new DateIsAfterRule(),
+        dateIs: new DateIsRule(),
+        dateIsBefore: new DateIsBeforeRule(),
+        dateIsAfter: new DateIsAfterRule(),
 
 }
