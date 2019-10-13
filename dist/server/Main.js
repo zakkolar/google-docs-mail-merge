@@ -218,6 +218,8 @@ var Rule = /** @class */ (function () {
                 return parseFloat(field.toString());
             case FIELD_TYPE.Date:
                 return new Date(field.toString());
+            case FIELD_TYPE.Boolean:
+                return field;
             default:
                 return null;
         }
@@ -236,6 +238,7 @@ var FIELD_TYPE;
     FIELD_TYPE["String"] = "Text";
     FIELD_TYPE["Number"] = "Number";
     FIELD_TYPE["Date"] = "Date";
+    FIELD_TYPE["Boolean"] = "Boolean";
 })(FIELD_TYPE = exports.FIELD_TYPE || (exports.FIELD_TYPE = {}));
 
 
@@ -890,6 +893,8 @@ var DateIsRule_1 = __webpack_require__(21);
 var DateIsBeforeRule_1 = __webpack_require__(22);
 var DateIsAfterRule_1 = __webpack_require__(23);
 var TextIsNotRule_1 = __webpack_require__(24);
+var BooleanIsTrueRule_1 = __webpack_require__(26);
+var BooleanIsFalseRule_1 = __webpack_require__(27);
 exports.RuleList = {
     isEmpty: new TextIsEmptyRule_1.TextIsEmptyRule(),
     isNotEmpty: new TextIsNotEmptyRule_1.TextIsNotEmptyRule(),
@@ -908,6 +913,8 @@ exports.RuleList = {
     dateIs: new DateIsRule_1.DateIsRule(),
     dateIsBefore: new DateIsBeforeRule_1.DateIsBeforeRule(),
     dateIsAfter: new DateIsAfterRule_1.DateIsAfterRule(),
+    booleanIsTrue: new BooleanIsTrueRule_1.BooleanIsTrueRule(),
+    booleanIsFalse: new BooleanIsFalseRule_1.BooleanIsFalseRule(),
 };
 
 
@@ -1540,6 +1547,111 @@ var TextIsNotRule = /** @class */ (function (_super) {
     return TextIsNotRule;
 }(TextRule_1.TextRule));
 exports.TextIsNotRule = TextIsNotRule;
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Rule_1 = __webpack_require__(2);
+var BooleanRule = /** @class */ (function (_super) {
+    __extends(BooleanRule, _super);
+    function BooleanRule(label) {
+        return _super.call(this, Rule_1.FIELD_TYPE.Boolean, label) || this;
+    }
+    return BooleanRule;
+}(Rule_1.Rule));
+exports.BooleanRule = BooleanRule;
+
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var BooleanRule_1 = __webpack_require__(25);
+var BooleanIsTrueRule = /** @class */ (function (_super) {
+    __extends(BooleanIsTrueRule, _super);
+    function BooleanIsTrueRule() {
+        var _this = _super.call(this, "is true") || this;
+        _this.showComparison = false;
+        return _this;
+    }
+    BooleanIsTrueRule.prototype.rule = function (mergeField, comparison) {
+        if (comparison === void 0) { comparison = null; }
+        return !!mergeField;
+    };
+    return BooleanIsTrueRule;
+}(BooleanRule_1.BooleanRule));
+exports.BooleanIsTrueRule = BooleanIsTrueRule;
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var BooleanRule_1 = __webpack_require__(25);
+var BooleanIsFalseRule = /** @class */ (function (_super) {
+    __extends(BooleanIsFalseRule, _super);
+    function BooleanIsFalseRule() {
+        var _this = _super.call(this, "is false") || this;
+        _this.showComparison = false;
+        return _this;
+    }
+    BooleanIsFalseRule.prototype.rule = function (mergeField, comparison) {
+        if (comparison === void 0) { comparison = null; }
+        return !mergeField;
+    };
+    return BooleanIsFalseRule;
+}(BooleanRule_1.BooleanRule));
+exports.BooleanIsFalseRule = BooleanIsFalseRule;
 
 
 /***/ })

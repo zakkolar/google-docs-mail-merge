@@ -15,6 +15,8 @@ import {DateIsRule} from "./rules/DateIsRule";
 import {DateIsBeforeRule} from "./rules/DateIsBeforeRule";
 import {DateIsAfterRule} from "./rules/DateIsAfterRule";
 import {TextIsNotRule} from "./rules/TextIsNotRule";
+import {BooleanIsTrueRule} from "./rules/BooleanIsTrueRule";
+import {BooleanIsFalseRule} from "./rules/BooleanIsFalseRule";
 
 export const RuleList = {
        isEmpty: new TextIsEmptyRule(),
@@ -34,5 +36,7 @@ export const RuleList = {
         dateIs: new DateIsRule(),
         dateIsBefore: new DateIsBeforeRule(),
         dateIsAfter: new DateIsAfterRule(),
+        booleanIsTrue: new BooleanIsTrueRule(),
+        booleanIsFalse: new BooleanIsFalseRule(),
 
 }

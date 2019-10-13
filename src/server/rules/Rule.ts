@@ -28,6 +28,8 @@ export abstract class Rule{
                 return parseFloat(field.toString());
             case FIELD_TYPE.Date:
                 return new Date(field.toString());
+            case FIELD_TYPE.Boolean:
+                return field;
             default:
                 return null;
         }
@@ -46,5 +48,6 @@ export abstract class Rule{
 export enum FIELD_TYPE {
     String = "Text",
     Number = "Number",
-    Date = "Date"
+    Date = "Date",
+    Boolean = "Boolean"
 }
