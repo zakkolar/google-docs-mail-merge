@@ -279,6 +279,9 @@ function merge(opts) {
     if (opts.start && opts.end) {
         setRows(opts.start, opts.end);
     }
+    if (getMergeValues().length == 0) {
+        return { noRows: true };
+    }
     var templateDoc = DocumentApp.getActiveDocument();
     var templateFile = DriveApp.getFileById(templateDoc.getId());
     var docName = templateDoc.getName();
@@ -288,8 +291,8 @@ function merge(opts) {
     var mergedDoc = DocumentApp.openById(templateFile.makeCopy(title).getId());
     // @ts-ignore
     addMergeData(mergedDoc);
-    var link = mergedDoc.getUrl();
-    return link;
+    var url = mergedDoc.getUrl();
+    return { url: url };
 }
 // @ts-ignore
 global.merge = merge;

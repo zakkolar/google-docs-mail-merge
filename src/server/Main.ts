@@ -39,6 +39,10 @@ function merge(opts){
     setRows(opts.start, opts.end);
   }
 
+  if(getMergeValues().length==0){
+    return {noRows:true};
+  }
+
   var templateDoc = DocumentApp.getActiveDocument();
 
   var templateFile = DriveApp.getFileById(templateDoc.getId());
@@ -56,9 +60,9 @@ function merge(opts){
   // @ts-ignore
   addMergeData(mergedDoc);
 
-  var link = mergedDoc.getUrl();
+  const url = mergedDoc.getUrl();
 
-  return link;
+  return {url};
 
 }
 // @ts-ignore

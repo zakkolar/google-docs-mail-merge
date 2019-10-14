@@ -27,6 +27,7 @@ var app = new Vue({
             rules: []
         },
         error: null,
+        message: null,
         ruleEditor:null,
         ruleEditorIndex: -1,
         ruleSaving: false,
@@ -235,10 +236,17 @@ var app = new Vue({
                 vue.error = err;
                 vue.loading = false;
 
-            }).withSuccessHandler(function(url){
-
-                vue.mergeURL = url;
+            }).withSuccessHandler(function(response){
                 vue.loading = false;
+
+                if(response.url){
+                    vue.mergeURL = response.url;
+                }
+                if(response.noRows){
+                    vue.message = "Couldn't find any rows to merge. Double check you selected the correct sheet and your rules are set correctly.";
+                }
+
+
 
 
             }).merge(mergeSettings);
