@@ -34,10 +34,8 @@ global.showSpreadsheetPicker = showSpreadsheetPicker;
 
 
 function merge(opts){
-  Logger.log('merging');
-  Logger.log(opts);
+
   if(opts.start && opts.end){
-    Logger.log('saving rows');
     setRows(opts.start, opts.end);
   }
 
@@ -135,9 +133,7 @@ function addField(field){
     const attrs = surrounding.getAttributes();
     const newText = cursor.insertText(field);
 
-    Logger.log(surrounding.getText());
-    Logger.log(cursorPosition);
-    Logger.log(newText.getText());
+
 
     if(field.length>0){
       surrounding.setAttributes(cursorPosition, cursorPosition + field.length - 1, attrs);

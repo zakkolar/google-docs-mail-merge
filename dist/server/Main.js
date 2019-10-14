@@ -276,10 +276,7 @@ function showSpreadsheetPicker() {
 // @ts-ignore
 global.showSpreadsheetPicker = showSpreadsheetPicker;
 function merge(opts) {
-    Logger.log('merging');
-    Logger.log(opts);
     if (opts.start && opts.end) {
-        Logger.log('saving rows');
         setRows(opts.start, opts.end);
     }
     var templateDoc = DocumentApp.getActiveDocument();
@@ -348,9 +345,6 @@ function addField(field) {
         var cursorPosition = cursor.getOffset();
         var attrs = surrounding.getAttributes();
         var newText_1 = cursor.insertText(field);
-        Logger.log(surrounding.getText());
-        Logger.log(cursorPosition);
-        Logger.log(newText_1.getText());
         if (field.length > 0) {
             surrounding.setAttributes(cursorPosition, cursorPosition + field.length - 1, attrs);
         }
