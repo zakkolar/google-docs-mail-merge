@@ -41,7 +41,7 @@
     "glob": "^7.1.4",
     "html-webpack-inline-source-plugin": "0.0.10",
     "html-webpack-plugin": "^3.2.0",
-    "mocha": "^6.1.4",
+    "mocha": "^10.2.0",
     "node-sass": "^4.12.0",
     "on-build-webpack": "^0.1.0",
     "path": "^0.12.7",
